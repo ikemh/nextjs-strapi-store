@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_variants_variant_materials",
+  "info": {
+    "displayName": "variant.material",
+    "icon": "apps"
+  },
+  "options": {},
+  "attributes": {
+    "material": {
+      "type": "string"
+    },
+    "price": {
+      "type": "decimal",
+      "min": 0
+    },
+    "sku": {
+      "type": "string",
+      "unique": true
+    }
+  }
+}
