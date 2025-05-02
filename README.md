@@ -1,61 +1,112 @@
-# 🚀 Getting started with Strapi
+# Laser Cutting Product Catalog – Next.js + Strapi
 
-Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
-
-### `develop`
-
-Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-develop)
-
-```
-npm run develop
-# or
-yarn develop
-```
-
-### `start`
-
-Start your Strapi application with autoReload disabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-start)
-
-```
-npm run start
-# or
-yarn start
-```
-
-### `build`
-
-Build your admin panel. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-build)
-
-```
-npm run build
-# or
-yarn build
-```
-
-## ⚙️ Deployment
-
-Strapi gives you many possible deployment options for your project including [Strapi Cloud](https://cloud.strapi.io). Browse the [deployment section of the documentation](https://docs.strapi.io/dev-docs/deployment) to find the best solution for your use case.
-
-```
-yarn strapi deploy
-```
-
-## 📚 Learn more
-
-- [Resource center](https://strapi.io/resource-center) - Strapi resource center.
-- [Strapi documentation](https://docs.strapi.io) - Official Strapi documentation.
-- [Strapi tutorials](https://strapi.io/tutorials) - List of tutorials made by the core team and the community.
-- [Strapi blog](https://strapi.io/blog) - Official Strapi blog containing articles made by the Strapi team and the community.
-- [Changelog](https://strapi.io/changelog) - Find out about the Strapi product updates, new features and general improvements.
-
-Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/strapi). Your feedback and contributions are welcome!
-
-## ✨ Community
-
-- [Discord](https://discord.strapi.io) - Come chat with the Strapi community including the core team.
-- [Forum](https://forum.strapi.io/) - Place to discuss, ask questions and find answers, show your Strapi project and get feedback or just talk with other Community members.
-- [Awesome Strapi](https://github.com/strapi/awesome-strapi) - A curated list of awesome things related to Strapi.
+An online **catalog platform** built with **Next.js** and **Strapi**, designed for showcasing **hundreds of laser-cut blade models and collections**.  
+This project supports scalable browsing, variant management, and a performant frontend tailored for the laser cutting industry.
 
 ---
 
-<sub>🤫 Psst! [Strapi is hiring](https://strapi.io/careers).</sub>
+## Technologies
+
+- **Frontend**: [Next.js](https://nextjs.org/) (App Router)
+- **Backend**: [Strapi](https://strapi.io/) v5 (Headless CMS)
+- **Styling**: Tailwind CSS
+- **Database**: SQLite (for local dev)
+
+---
+
+## Project Structure
+
+```
+my-ecommerce/
+├── frontend/         # Next.js frontend
+├── src/              # Strapi backend
+├── database/         # Local SQLite DB
+├── config/           # Strapi config
+├── public/           # Media assets
+├── .env.example      # Environment variables (template)
+├── package.json
+└── README.md
+```
+
+---
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone git@github.com:ikemh/nextjs-strapi-store.git
+cd nextjs-strapi-store
+```
+
+---
+
+### 2. Environment Setup
+
+#### Backend (`.env`)
+
+```env
+NODE_ENV=development
+APP_KEYS=your_app_keys
+API_TOKEN_SALT=your_salt
+ADMIN_JWT_SECRET=your_jwt
+JWT_SECRET=your_jwt
+```
+
+#### Frontend (`frontend/.env.local`)
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:1337
+```
+
+---
+
+### 3. Install dependencies
+
+```bash
+npm install
+cd frontend && npm install
+cd ..
+```
+
+---
+
+### 4. Start development servers
+
+#### Backend (Strapi)
+
+```bash
+npm run develop
+```
+
+#### Frontend (Next.js)
+
+```bash
+cd frontend
+npm run dev
+```
+
+---
+
+## Features
+
+- Visual catalog of blade collections and variants
+- Infinite scrolling for large datasets
+- Quantity and variant selection per model
+- Tailored for laser cutting product management
+- REST API integration with Strapi
+
+---
+
+## Notes
+
+- Monorepo structure for unified backend/frontend
+- Uses SQLite for local development
+- Frontend can be deployed to Vercel
+- Backend can be deployed to Render, Railway, or any Node-compatible server
+
+---
+
+## License
+
+MIT
