@@ -24,3 +24,36 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* embla-carousel setup */
+.embla {
+  width: 100%;
+}
+
+.embla__container {
+  scroll-snap-type: x mandatory;
+  transition: transform 0.1s ease-in-out;
+}
+
+.embla__slide {
+  scroll-snap-align: center;
+  cursor: pointer;
+}
+
+/* opcional: escondendo a scrollbar nativa */
+.embla {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.embla::-webkit-scrollbar {
+  display: none;
+}
+
+/* globals.css */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

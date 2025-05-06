@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import "simplebar/dist/simplebar.min.css";
+
+.simplebar-track.simplebar-vertical {
+  width: 6px;
+}
+.simplebar-scrollbar:before {
+  background-color: #444;
+  border-radius: 3px;
+}
+.simplebar-track.simplebar-vertical .simplebar-scrollbar:before {
+  opacity: 1;
+}
+
+::selection {
+  background: rgba(212, 175, 55, 0.3);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background: rgba(212, 175, 55, 0.3);
+  color: #ffffff;
+}
