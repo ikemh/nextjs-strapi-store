@@ -17,7 +17,7 @@ export default function FullHoverZoom({ src, alt, zoom = 2 }) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-[1000/400] overflow-hidden cursor-zoom-in"
+      className="relative w-full aspect-[1000/400] overflow-hidden cursor-zoom-in rounded-lg"
       onMouseEnter={() => setZoomed(true)}
       onMouseMove={(e) => zoomed && handleMouseMove(e)}
       onMouseLeave={() => setZoomed(false)}
@@ -26,11 +26,11 @@ export default function FullHoverZoom({ src, alt, zoom = 2 }) {
         src={src}
         alt={alt}
         fill
-        className="object-cover"
+        className="object-cover rounded-lg"
         style={{
           transform: zoomed ? `scale(${zoom})` : "scale(1)",
           transformOrigin: `${origin.x}% ${origin.y}%`,
-          transition: zoomed ? "none" : "transform 0.3s ease",
+          transition: "transform 1s ease",
         }}
       />
     </div>

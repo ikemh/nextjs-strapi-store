@@ -63,7 +63,7 @@ export default function CategoryTitle({
       >
         CATÁLOGO
         <br />
-        <span className="block text-2xl text-[#aaa] font-normal tracking-normal leading-tight mt-1">
+        <span className="block text-2xl text-[#D4AF37] font-normal tracking-normal leading-tight mt-1">
           2025
         </span>
       </h2>
@@ -121,9 +121,9 @@ export default function CategoryTitle({
               <div
                 className={`relative z-10 px-6 py-3 text-center rounded-md border transition-all duration-200 ${
                   isActive
-                    ? "border-[#f0f0f080] shadow-[0_0_10px_rgba(255,255,255,0.3)]"
-                    : "border-[#444]"
-                } hover:shadow-[0_0_8px_rgba(255,255,255,0.2)]`}
+                    ? "border-[#D4AF37] border-2 shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                    : "border-[#fafafa]"
+                } hover:shadow-[0_0_8px_rgba(255,255,255,0.2)] border-2`}
               >
                 <h2
                   className={`${stencil.className} text-base sm:text-lg md:text-xl uppercase font-extrabold text-transparent bg-clip-text`}

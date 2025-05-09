@@ -8,7 +8,7 @@
   width: 6px;
 }
 .simplebar-scrollbar:before {
-  background-color: #444;
+  background-color: #999;
   border-radius: 3px;
 }
 .simplebar-track.simplebar-vertical .simplebar-scrollbar:before {
@@ -16,11 +16,11 @@
 }
 
 ::selection {
-  background: rgba(212, 175, 55, 0.3);
+  background: #b8860b50;
   color: #ffffff;
 }
 
 ::-moz-selection {
-  background: rgba(212, 175, 55, 0.3);
+  background: #b8860b50;
   color: #ffffff;
 }

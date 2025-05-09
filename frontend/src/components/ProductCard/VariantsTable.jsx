@@ -9,7 +9,7 @@ export default function VariantsTable({
   changeQuantity,
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-[#2A2A2A]">
+    <div className="overflow-hidden rounded-lg border border-[#3A3A3A]">
       <table
         className="
           w-full
@@ -20,14 +20,14 @@ export default function VariantsTable({
       >
         <thead className="bg-[#2A2A2A]">
           <tr>
-            <th className="w-[5%] px-2 py-1 text-center text-md font-bold" />
-            <th className="w-[40%] px-2 py-1 text-left text-md font-bold">
+            <th className="w-[5%] px-2 py-0 text-center text-md font-bold" />
+            <th className="w-[40%] px-2 py-0 text-left text-md font-bold">
               Material
             </th>
-            <th className="w-[25%] px-2 py-1 text-left text-md font-bold">
+            <th className="w-[25%] px-2 py-0 text-left text-md font-bold">
               Preço
             </th>
-            <th className="w-[20%] px-2 py-1 text-center text-md font-bold">
+            <th className="w-[20%] px-2 py-0 text-center text-md font-bold">
               Qtde.
             </th>
           </tr>
