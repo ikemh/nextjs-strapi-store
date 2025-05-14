@@ -8,6 +8,7 @@ import SideDrawer from "@/components/SideDrawer";
 import CartDrawer from "@/components/CartDrawer";
 import CategoryTitle from "@/components/CategoryCarousel/CategoryTitle";
 import ProductsSection from "@/components/ProductsSection";
+import FloatingCheckoutButton from "@/components/FloatingCheckoutButton";
 
 export default function HomePage() {
   const { categories, selectedCategory, setSelectedCategory } = useCategories();
@@ -43,7 +44,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#202020] text-white pt-16">
       <NavBar onToggleDrawer={toggleSide} onToggleCart={toggleCart} />
-
       <SideDrawer
         isOpen={isSideOpen}
         onClose={() => setIsSideOpen(false)}
@@ -51,9 +51,7 @@ export default function HomePage() {
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
       />
-
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-
       {/* Carrossel full-width, fora do padding do main */}
       <div className="w-full">
         <CategoryTitle
@@ -62,10 +60,10 @@ export default function HomePage() {
           onSelectCategory={setSelectedCategory}
         />
       </div>
-
       <main className="max-w-6xl mx-auto space-y-12 p-2 sm:p-6">
         <ProductsSection selectedCategory={selectedCategory} />
       </main>
+      <FloatingCheckoutButton />
     </div>
   );
 }

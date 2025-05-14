@@ -54,9 +54,15 @@ export function CartProvider({ children }) {
     dispatch({ type: "REMOVE_ITEM", payload: { sku } });
   const clearCart = () => dispatch({ type: "CLEAR_CART" });
 
+  // Calcular o total dos itens
+  const total = state.items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+
   return (
     <CartContext.Provider
-      value={{ items: state.items, addItem, removeItem, clearCart }}
+      value={{ items: state.items, addItem, removeItem, clearCart, total }} // Total é agora acessível diretamente
     >
       {children}
     </CartContext.Provider>

@@ -1,39 +1,47 @@
+// src/app/checkout/page.jsx
+
 "use client";
 import React, { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
-import CheckoutLayout from "@/components/CheckoutLayout";
-
-const API_URL = process.env.NEXT_PUBLIC_STRAPI_API;
+import CheckoutLayout from "@/components/CheckoutLayout/CheckoutLayout";
 
 export default function CheckoutPage() {
-  // estado e hooks
   const { items, clearCart } = useCart();
-  const [customer, setCustomer] = useState("");
-  const [phone, setPhone] = useState("");
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // cálculo de total
-  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const [customer, setCustomer] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // handler de submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!customer || !phone || items.length === 0) return;
+  // Funções para atualizar os valores dos estados
+  const handleCustomerChange = (value) => setCustomer(value);
+  const handleEmailChange = (value) => setEmail(value);
+  const handlePhoneChange = (value) => setPhone(value);
+
+  // Cálculo do total
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const handleSubmit = async (orderData) => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/orders`, {
+      const res = await fetch("/api/submitOrder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customer, phone, items, total }),
+        body: JSON.stringify(orderData),
       });
-      if (!res.ok) throw new Error();
-      clearCart();
-      router.push("/success");
-    } catch {
-      alert("Falha ao enviar pedido.");
+      const result = await res.json();
+      alert(result.message);
+      clearCart(); // Limpa o carrinho após sucesso
+      router.push("/success"); // Redireciona para página de sucesso
+    } catch (error) {
+      alert("Erro ao enviar pedido.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -44,11 +52,13 @@ export default function CheckoutPage() {
       items={items}
       total={total}
       customer={customer}
+      email={email}
       phone={phone}
       loading={loading}
-      onCustomerChange={setCustomer}
-      onPhoneChange={setPhone}
-      onSubmit={handleSubmit}
+      onCustomerChange={handleCustomerChange}
+      onEmailChange={handleEmailChange}
+      onPhoneChange={handlePhoneChange}
+      onSubmit={handleSubmit} // Passando a função de submit para o CheckoutLayout
     />
   );
 }

@@ -58,8 +58,6 @@ export default function FloatingCheckoutButton() {
     }
   };
 
-  // ** NOVO **: sempre que items mudar, se já houver
-  // notifications abertas, limpa e re-popula com o estado atual
   useEffect(() => {
     if (notifications.length > 0) {
       clearNotifications();

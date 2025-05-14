@@ -2,7 +2,6 @@
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
-import FloatingCheckoutButton from "@/components/FloatingCheckoutButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,10 +31,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${roboto.variable} font-roboto antialiased`}
       >
-        <CartProvider>
-          {children}
-          <FloatingCheckoutButton />
-        </CartProvider>
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );

@@ -69,3 +69,18 @@ input[type="number"].no-spinner::-webkit-inner-spin-button {
 input[type="number"].no-spinner {
   -moz-appearance: textfield;
 }
+
+/* Adicione isto no seu Tailwind ou CSS global */
+.cep-mask {
+  /* exibe o traço no :after quando há 5 caracteres */
+  position: relative;
+}
+.cep-mask::after {
+  content: attr(data-display);
+  position: absolute;
+  left: 0.75rem; /* padding interno */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+  pointer-events: none;
+}
