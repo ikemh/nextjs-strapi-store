@@ -37,6 +37,12 @@
       "relation": "manyToOne",
       "target": "api::categoria.categoria",
       "inversedBy": "produtos"
+    },
+    "item_do_pedidos": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::item-do-pedido.item-do-pedido",
+      "mappedBy": "produto"
     }
   }
 }

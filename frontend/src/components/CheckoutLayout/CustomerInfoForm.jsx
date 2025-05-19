@@ -1,8 +1,9 @@
-// src/components/CustomerInfoForm.jsx
-
 import React, { useState, useRef, useEffect } from "react";
-import { useCart } from "@/context/CartContext"; // Importando o useCart
+import { useCart } from "@/context/CartContext";
 import Script from "next/script";
+
+import InputField from "./InputField";
+import AddressSection from "./AddressSection";
 import {
   initPhoneInput,
   validatePhoneBR,
@@ -15,14 +16,14 @@ export default function CustomerInfoForm({
   email,
   phone,
   loading,
-  disableSubmit,
   onCustomerChange,
   onEmailChange,
   onPhoneChange,
-  onSubmit, // Passando a função de submit
+  onSubmit,
 }) {
   const { items } = useCart();
   const phoneRef = useRef(null);
+
   const [cep, setCep] = useState("");
   const [address, setAddress] = useState({
     street: "",
@@ -33,6 +34,13 @@ export default function CustomerInfoForm({
   const [loadingCep, setLoadingCep] = useState(false);
   const [number, setNumber] = useState("");
   const [complement, setComplement] = useState("");
+  const [phoneValid, setPhoneValid] = useState(null);
+  const [cepValid, setCepValid] = useState(null);
+
+  useEffect(() => {
+    const value = phoneRef.current?.value || "";
+    setPhoneValid(validatePhoneBR(value).valid);
+  }, [phone]);
 
   useEffect(() => {
     if (!phoneRef.current) return;
@@ -42,46 +50,71 @@ export default function CustomerInfoForm({
 
   useEffect(() => {
     const sanitized = cep.replace(/\D/g, "");
-    if (sanitized.length === 8) {
-      setLoadingCep(true);
-      fetchAddressByCEP(sanitized)
-        .then(setAddress)
-        .catch((err) => {
-          alert(err.message);
-          setAddress({ street: "", neighborhood: "", city: "", state: "" });
-        })
-        .finally(() => setLoadingCep(false));
+    if (sanitized.length < 8) {
+      setCepValid(false);
+      return;
     }
+    setLoadingCep(true);
+    fetchAddressByCEP(sanitized)
+      .then((res) => {
+        setAddress(res);
+        setCepValid(true);
+      })
+      .catch((err) => {
+        alert(err.message);
+        setAddress({ street: "", neighborhood: "", city: "", state: "" });
+        setCepValid(false);
+      })
+      .finally(() => setLoadingCep(false));
   }, [cep]);
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-
-    // Validação de email
+    const trimmedName = customer.trim();
+    if (trimmedName.length < 2) {
+      alert("Nome deve ter pelo menos 2 letras.");
+      return;
+    }
+    if (number.trim() === "") {
+      alert("Número do endereço não pode ficar em branco.");
+      return;
+    }
     const emailCheck = validateEmail(email);
     if (!emailCheck.valid) {
       alert(emailCheck.reason);
       return;
     }
-
-    // Validação de telefone
     const phoneVal = validatePhoneBR(phoneRef.current.value);
     if (!phoneVal.valid) {
       alert(phoneVal.reason);
       return;
     }
+    const sanitizedCep = cep.replace(/\D/g, "");
+    if (sanitizedCep.length !== 8) {
+      alert("CEP deve conter 8 dígitos.");
+      return;
+    }
+    if (!address.street) {
+      alert("Endereço inválido ou CEP não encontrado.");
+      return;
+    }
 
-    // Chama a função `onSubmit` do CheckoutPage.jsx
-    onPhoneChange(phoneVal.e164); // Atualiza o telefone no contexto
+    onPhoneChange(phoneVal.e164);
 
-    const orderData = {
+    onSubmit({
       customer,
       email,
       phone: phoneVal.e164,
-      address,
+      address: {
+        street: address.street,
+        neighborhood: address.neighborhood,
+        city: address.city,
+        state: address.state,
+        number, // <–– aqui
+        complement, // <–– e aqui
+      },
       cartItems: items,
-    };
-    onSubmit(orderData); // Passa os dados validados para o CheckoutPage para envio
+    });
   };
 
   return (
@@ -93,167 +126,58 @@ export default function CustomerInfoForm({
       <h2 className="uppercase tracking-wide text-2xl mb-4 text-[#DDDDDD]">
         Informações
       </h2>
-      <form noValidate onSubmit={handleSubmit} className="space-y-6">
-        {/* Nome/Empresa */}
-        <div>
-          <label className="block mb-2 text-sm text-[#DADADA] font-bold after:content-['*'] after:ml-1 after:text-red-500/30">
-            Nome/Empresa
-          </label>
-          <input
-            type="text"
-            name="name"
-            autoComplete="name"
-            value={customer}
-            onChange={(e) => onCustomerChange(e.target.value)}
-            required
-            minLength={2}
-            placeholder="João da Silva / Empresa XYZ"
-            className="w-full p-3 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] focus:ring-2 focus:ring-[#D4AF37] text-white placeholder-gray-400/25"
-          />
-        </div>
+      <form noValidate onSubmit={handleFormSubmit} className="space-y-6">
+        <InputField
+          label="Nome/Empresa"
+          type="text"
+          name="name"
+          autoComplete="name"
+          value={customer}
+          onChange={(e) => onCustomerChange(e.target.value)}
+          isValid={customer.trim().length >= 2}
+          required
+          minLength={2}
+          placeholder="João da Silva / Empresa XYZ"
+        />
+        <InputField
+          label="E-mail"
+          type="email"
+          name="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
+          isValid={validateEmail(email).valid}
+          required
+          placeholder="joao@gmail.com"
+        />
 
-        {/* E-mail */}
-        <div>
-          <label className="block mb-2 text-sm text-[#DADADA] font-bold after:content-['*'] after:ml-1 after:text-red-500/30">
-            E-mail
-          </label>
-          <input
-            type="email"
-            name="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => onEmailChange(e.target.value)}
-            required
-            placeholder="joao@gmail.com"
-            className="w-full p-3 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] focus:ring-2 focus:ring-[#D4AF37] text-white placeholder-gray-400/25"
-          />
-        </div>
+        <AddressSection
+          cep={cep}
+          setCep={setCep}
+          cepValid={cepValid}
+          loadingCep={loadingCep}
+          address={address}
+          number={number}
+          setNumber={setNumber}
+          complement={complement}
+          setComplement={setComplement}
+        />
 
-        {/* CEP */}
-        <div>
-          <label className="block mb-2 text-sm text-[#DADADA] font-bold after:content-['*'] after:ml-1 after:text-red-500/30">
-            CEP
-          </label>
-          <input
-            type="text"
-            name="postal-code"
-            autoComplete="postal-code"
-            value={cep.replace(/(\d{5})(\d{1,3})?/, (_, p1, p2) =>
-              p2 ? `${p1}-${p2}` : p1
-            )}
-            onChange={(e) =>
-              setCep(e.target.value.replace(/\D/g, "").slice(0, 8))
-            }
-            required
-            maxLength={9}
-            pattern="[0-9]{5}-[0-9]{3}"
-            title="Digite um CEP no formato 00000-000"
-            placeholder="00000-000"
-            className="w-full p-3 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] focus:ring-2 focus:ring-[#D4AF37] text-white placeholder-gray-400 placeholder-opacity-25"
-          />
-        </div>
-
-        {/* Endereço preenchido */}
-        {address.street && (
-          <>
-            <div>
-              <label className="block mb-2 text-sm text-[#DADADA] font-bold after:content-['*'] after:ml-1 after:text-red-500/30">
-                Rua
-              </label>
-              <input
-                type="text"
-                value={address.street}
-                readOnly
-                className="w-full p-3 rounded-xl bg-[#2A2A2A] border border-[#3A3A3A] text-[#CCCCCC]"
-              />
-            </div>
-            <div>
-              <label className="block mb-2 text-sm text-[#DADADA] font-bold after:content-['*'] after:ml-1 after:text-red-500/30">
-                Bairro
-              </label>
-              <input
-                type="text"
-                value={address.neighborhood}
-                readOnly
-                className="w-full p-3 rounded-xl bg-[#2A2A2A] border border-[#3A3A3A] text-[#CCCCCC]"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-2 text-sm text-[#DADADA] font-bold after:content-['*'] after:ml-1 after:text-red-500/30">
-                  Cidade
-                </label>
-                <input
-                  type="text"
-                  value={address.city}
-                  readOnly
-                  className="w-full p-3 rounded-xl bg-[#2A2A2A] border border-[#3A3A3A] text-[#CCCCCC]"
-                />
-              </div>
-              <div>
-                <label className="block mb-2 text-sm text-[#DADADA]">UF</label>
-                <input
-                  type="text"
-                  value={address.state}
-                  readOnly
-                  className="w-full p-3 rounded-xl bg-[#2A2A2A] border border-[#3A3A3A] text-[#CCCCCC]"
-                />
-              </div>
-            </div>
-
-            {/* Número */}
-            <div>
-              <label className="block mb-2 text-sm text-[#DADADA] font-bold after:content-['*'] after:ml-1 after:text-red-500/30">
-                Número
-              </label>
-              <input
-                type="text"
-                value={number}
-                onChange={(e) => setNumber(e.target.value)}
-                required
-                placeholder="99"
-                className="w-full p-3 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] focus:ring-2 focus:ring-[#D4AF37] text-white placeholder-gray-400/25"
-              />
-            </div>
-
-            {/* Complemento */}
-            <div>
-              <label className="block mb-2 text-sm text-[#DADADA] font-bold">
-                Complemento
-              </label>
-              <input
-                type="text"
-                value={complement}
-                onChange={(e) => setComplement(e.target.value)}
-                placeholder="Pavilhão Esquina"
-                className="w-full p-3 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] focus:ring-2 focus:ring-[#D4AF37] text-white placeholder-gray-400/25"
-              />
-            </div>
-          </>
-        )}
-
-        {/* Celular */}
-        <div>
-          <label className="block mb-2 text-sm text-[#DADADA] font-bold after:content-['*'] after:ml-1 after:text-red-500/30">
-            Celular
-          </label>
-          <input
-            ref={phoneRef}
-            type="tel"
-            name="tel"
-            autoComplete="tel"
-            defaultValue={phone}
-            required
-            placeholder="(00) 00000-0000"
-            className="w-full p-3 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] focus:ring-2 focus:ring-[#D4AF37] text-white placeholder-gray-400/25"
-          />
-        </div>
-
-        {/* Botão */}
+        <InputField
+          label="Celular"
+          ref={phoneRef}
+          type="tel"
+          autoComplete="tel"
+          defaultValue={phone}
+          onChange={() => {}}
+          isValid={phoneValid}
+          required
+          placeholder="(00) 00000-0000"
+        />
         <button
           type="submit"
-          disabled={loading || disableSubmit || loadingCep}
-          className="w-full py-3 text-lg font-semibold rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#CFAF37] hover:to-[#A8760B] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+          disabled={loading}
+          className="w-full py-3 text-lg font-semibold rounded-xl bg-gradient-to-r from-[#CFAF37] to-[#A8760B] hover:from-[#D4AF37] hover:to-[#B8860B] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
         >
           {loading
             ? "Enviando…"
