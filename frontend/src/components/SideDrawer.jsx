@@ -13,19 +13,16 @@ export default function SideDrawer({
 }) {
   return (
     <div
-      className={`fixed top-16 left-0 right-0 bottom-0 z-40 ${
-        isOpen ? "" : "pointer-events-none"
-      }`}
+      className={`z-40 fixed inset-0 ${isOpen ? "" : "pointer-events-none"}`}
       onClick={onClose}
     >
       <aside
         onClick={(e) => e.stopPropagation()}
         className={`
-          fixed top-16 left-0
-          h-[calc(100%)]
-          w-55
-          bg-[#2A2A2A]/95 backdrop-blur-lg
-          border-r border-white/20
+          fixed top-[8vh] left-0
+          h-[100%] w-65 min-w-[30vh] max-w-[10rem] 
+          bg-[#1A1A1A]/70 backdrop-blur-lg
+          border-r border-white/10
           origin-left transform transition-all duration-300
           ${isOpen ? "scale-x-100" : "scale-x-0"}
         `}
@@ -33,14 +30,14 @@ export default function SideDrawer({
         <button
           onClick={onClose}
           aria-label="Fechar menu"
-          className="cursor-pointer absolute top-[0.2rem] right-2 text-white text-2xl focus:outline-none"
+          className="cursor-pointer absolute top-[1vh] right-[1vh] text-white text-[4vh] focus:outline-none"
         >
           ×
         </button>
 
         <SimpleBar
           style={{ maxHeight: "100%" }}
-          className="mt-8 px-4 pl-0 pb-40 scroll-smooth font-roboto"
+          className="mt-[6vh] px-2vh pl-0  scroll-smooth font-roboto"
         >
           <nav className="space-y-1">
             {categories.map((cat) => (
@@ -58,7 +55,7 @@ export default function SideDrawer({
                   ${
                     cat === selectedCategory
                       ? "bg-[#B8860B] font-semibold text-white"
-                      : "text-[#D3D3D3] hover:text-white hover:translate-x-2"
+                      : "text-[#EAEAEA] hover:text-white hover:translate-x-2"
                   }
                 `}
               >

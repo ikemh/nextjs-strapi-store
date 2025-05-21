@@ -46,7 +46,7 @@ export default function VariantRow({
       </td>
 
       {/* Preço */}
-      <td className="w-[20%] px-2 py-0 border-t border-[#2A2A2A] text-left text-[#DFDFDF] font-bold">
+      <td className="w-[20%] px-2 py-0 border-t border-[#2A2A2A] text-left text-[#D0D0D0]">
         R$ {variant.price.toFixed(2)}
       </td>
 
@@ -78,7 +78,7 @@ export default function VariantRow({
             style={{ fontSize }}
             className={
               `w-8 h-6 bg-transparent text-center font-mono p-0 focus:outline-none focus:ring-2 focus:ring-yellow-400 ` +
-              (quantity > 0 ? "text-[#DADADA]" : "text-[gray]/50")
+              (quantity > 0 ? "text-[#DADADA]" : "text-[gray]/30")
             }
           />
 

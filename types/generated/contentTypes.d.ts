@@ -404,12 +404,12 @@ export interface ApiItemDoPedidoItemDoPedido
   collectionName: 'item_do_pedidos';
   info: {
     description: '';
-    displayName: 'Item do Pedido';
+    displayName: 'item do pedido';
     pluralName: 'item-do-pedidos';
     singularName: 'item-do-pedido';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     createdAt: Schema.Attribute.DateTime;
@@ -441,7 +441,7 @@ export interface ApiPedidoPedido extends Struct.CollectionTypeSchema {
     singularName: 'pedido';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     cliente: Schema.Attribute.String & Schema.Attribute.Required;
@@ -449,8 +449,12 @@ export interface ApiPedidoPedido extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     email: Schema.Attribute.Email & Schema.Attribute.Required;
-    endereco: Schema.Attribute.Component<'address.endereco', false>;
-    item_do_pedido: Schema.Attribute.Relation<
+    endereco: Schema.Attribute.Component<'address.endereco', false> &
+      Schema.Attribute.Required;
+    estado: Schema.Attribute.Enumeration<
+      ['pendente', 'pago', 'processando', 'enviado']
+    >;
+    item_do_pedidos: Schema.Attribute.Relation<
       'oneToMany',
       'api::item-do-pedido.item-do-pedido'
     >;
@@ -461,6 +465,7 @@ export interface ApiPedidoPedido extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    resumo: Schema.Attribute.Blocks & Schema.Attribute.Required;
     telefone: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

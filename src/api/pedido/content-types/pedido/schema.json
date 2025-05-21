@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "attributes": {
     "cliente": {
@@ -26,13 +26,27 @@
     "endereco": {
       "type": "component",
       "repeatable": false,
-      "component": "address.endereco"
+      "component": "address.endereco",
+      "required": true
     },
-    "item_do_pedido": {
+    "resumo": {
+      "type": "blocks",
+      "required": true
+    },
+    "item_do_pedidos": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::item-do-pedido.item-do-pedido",
       "mappedBy": "pedido"
+    },
+    "estado": {
+      "type": "enumeration",
+      "enum": [
+        "pendente",
+        "pago",
+        "processando",
+        "enviado"
+      ]
     }
   }
 }

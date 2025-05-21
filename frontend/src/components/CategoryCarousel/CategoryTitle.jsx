@@ -49,21 +49,21 @@ export default function CategoryTitle({
   };
 
   return (
-    <div className="flex flex-col items-center mt-12 pb-8 select-none">
+    <div className="flex flex-col items-center bg-gradient-to-t from-[#202020] border-b  border-[#3A3A3A] to-[#1a1a1a] pt-12 pb-8 select-none">
       {/* Título com degradê e contorno */}
       <h2
-        className={`text-5xl ${anton.className} uppercase mb-6 pt-3 pb-3 text-[#ddd] tracking-wide text-center`}
+        className={`text-6xl ${anton.className} uppercase mb-6 pt-3 pb-3 text-[#fff] tracking-wide text-center`}
         style={{
           textShadow: `
-      2px 2px 0 rgba(0,0,0,0.7),
-      -1px -1px 0 rgba(255,255,255,0.15),
-      0 0 8px rgba(255,255,255,0.2)
+      1px 5px 2px rgba(0,0,0,0.7),
+      -1px -1px 1px rgba(255,255,255,0.4),
+      0 0 50px rgba(255,255,255,0.35)
     `,
         }}
       >
         CATÁLOGO
         <br />
-        <span className="block text-2xl text-[#D4AF37] font-normal tracking-normal leading-tight mt-1">
+        <span className="block text-3xl text-[#D4AF37] font-normal tracking-normal leading-tight mt-1">
           2025
         </span>
       </h2>
@@ -87,8 +87,8 @@ export default function CategoryTitle({
               ref={(el) => (itemsRef.current[i] = el)}
               className={`relative flex-shrink-0 cursor-pointer transition-all duration-300 rounded-md min-w-[12rem] sm:min-w-[14rem] md:min-w-[15rem] ${
                 isActive
-                  ? "scale-100 opacity-80"
-                  : "scale-95 opacity-70 hover:scale-100 hover:opacity-90"
+                  ? "scale-100 opacity-90"
+                  : "scale-95 opacity-75 hover:scale-100 hover:opacity-85"
               }`}
               onClick={() => onSelectCategory(cat)}
             >
@@ -119,11 +119,11 @@ export default function CategoryTitle({
 
               {/* Conteúdo do botão */}
               <div
-                className={`relative z-10 px-6 py-3 text-center rounded-md border transition-all duration-200 ${
+                className={`relative z-10 px-6 py-3 border-3 text-center rounded-md border transition-all duration-200 ${
                   isActive
-                    ? "border-[#D4AF37] border-2 shadow-[0_0_10px_rgba(255,255,255,0.3)]"
-                    : "border-[#fafafa]"
-                } hover:shadow-[0_0_8px_rgba(255,255,255,0.2)] border-2`}
+                    ? "border-[#D4AF37] shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                    : "border-[#ffffff]"
+                } hover:shadow-[0_0_8px_rgba(255,255,255,0.2)]`}
               >
                 <h2
                   className={`${stencil.className} text-base sm:text-lg md:text-xl uppercase font-extrabold text-transparent bg-clip-text`}

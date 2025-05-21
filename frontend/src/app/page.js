@@ -42,7 +42,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#202020] text-white pt-16">
+    <div className="min-h-screen bg-[#202020] text-white pt-[10vh]">
       <NavBar onToggleDrawer={toggleSide} onToggleCart={toggleCart} />
       <SideDrawer
         isOpen={isSideOpen}

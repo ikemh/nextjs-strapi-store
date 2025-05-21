@@ -20,12 +20,12 @@ export default function AddToCartButton({ onClick, disabled }) {
         disabled={disabled}
         className={`
           mt-auto py-2 sm:py-3 px-3 sm:px-6
-          bg-gradient-to-r from-[#D4AF37] to-[#B8860B]
-          hover:from-[#CFAF37] hover:to-[#A8760B]
+          bg-gradient-to-r from-[#CFAF37] to-[#A8760B]
+          hover:from-[#D4AF37] hover:to-[#B8860B]
           text-white font-semibold rounded-xl shadow-md
           transition flex items-center justify-center space-x-2
           text-base sm:text-lg
-          cursor-pointer disabled:opacity-70
+          cursor-pointer disabled:pointer-events-none
         `}
       >
         <ShoppingCart className="h-5 w-5" />

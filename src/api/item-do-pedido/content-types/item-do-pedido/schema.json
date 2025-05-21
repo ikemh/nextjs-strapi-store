@@ -4,11 +4,11 @@
   "info": {
     "singularName": "item-do-pedido",
     "pluralName": "item-do-pedidos",
-    "displayName": "Item do Pedido",
+    "displayName": "item do pedido",
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "attributes": {
     "quantidade": {
@@ -29,7 +29,7 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::pedido.pedido",
-      "inversedBy": "item_do_pedido"
+      "inversedBy": "item_do_pedidos"
     }
   }
 }
