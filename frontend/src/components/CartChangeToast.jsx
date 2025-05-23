@@ -18,8 +18,10 @@ export default function CartChangeToast({
   // cores suaves
   const bgClass =
     type === "success"
-      ? "bg-[#2A2A2A]/95 backdrop-blur-lg border-green-100 text-green-500"
-      : "bg-[#2A2A2A]/95 backdrop-blur-lg   border-red-100   text-red-500";
+      ? "bg-black/75 backdrop-blur-lg border-green-400/20 text-green-400/80"
+      : type === "error"
+        ? "bg-black/75 backdrop-blur-lg border-red-400/20 text-red-400/80"
+        : "bg-black/75 backdrop-blur-lg border-yellow-400/20 text-yellow-400/85";
 
   return createPortal(
     <div className="fixed top-20 w-80 left-1/2 transform -translate-x-1/2 z-50">

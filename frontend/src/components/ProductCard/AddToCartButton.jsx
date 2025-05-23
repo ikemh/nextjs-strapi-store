@@ -1,3 +1,4 @@
+// src/components/AddToCartButton.jsx
 "use client";
 
 import React, { useState } from "react";
@@ -8,6 +9,10 @@ export default function AddToCartButton({ onClick, disabled }) {
   const [toast, setToast] = useState(null);
 
   const handleClick = () => {
+    if (disabled) {
+      setToast({ message: "Selecione algum produto!", type: "alert" });
+      return;
+    }
     if (onClick) onClick();
     setToast({ message: "Produto adicionado ao carrinho!", type: "success" });
   };
@@ -17,18 +22,17 @@ export default function AddToCartButton({ onClick, disabled }) {
       <button
         type="button"
         onClick={handleClick}
-        disabled={disabled}
         className={`
           mt-auto py-2 sm:py-3 px-3 sm:px-6
-          bg-gradient-to-r from-[#CFAF37] to-[#A8760B]
-          hover:from-[#D4AF37] hover:to-[#B8860B]
-          text-white font-semibold rounded-xl shadow-md
+          bg-gradient-to-r from-[#D4AF37] to-[#A8760B]
+          hover:from-[#CFAF37] hover:to-[#B8860B]
+          text-[#1a1a1a] font-semibold rounded-xl shadow-md
           transition flex items-center justify-center space-x-2
-          text-base sm:text-lg
-          cursor-pointer disabled:pointer-events-none
+          text-base sm:text-lg font-bold
+          ${disabled ? "cursor-default" : "cursor-pointer"}
         `}
       >
-        <ShoppingCart className="h-5 w-5" />
+        <ShoppingCart className="h-6 w-6" />
         <span>Adicionar ao carrinho</span>
       </button>
 

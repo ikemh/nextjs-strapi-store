@@ -92,9 +92,10 @@ export default function FloatingCheckoutButton() {
         className={`
           fixed bottom-0 left-0 right-0
           grid grid-cols-12 items-center
-          bg-[#1A1A1A]/80 backdrop-blur-lg
-          border-t border-white/20
-          px-4 py-3 z-50
+          bg-[#1A1A1A]/70 backdrop-blur-lg
+          h-[9vh]
+          border-t border-white/10
+          px-[3vh] py-[0] z-50
           transform transition-transform duration-500 ease-out
           ${visible ? "translate-y-0" : "translate-y-full"}
         `}
@@ -103,14 +104,14 @@ export default function FloatingCheckoutButton() {
           <button
             onClick={handleCheckout}
             className="
-              bg-gradient-to-r from-[#D4AF37] to-[#B8860B]
-              hover:from-[#CFAF37] hover:to-[#A8760B]
-              text-white text-lg font-semibold
-              py-2 px-6 rounded-xl
+              bg-gradient-to-r from-[#0a0a0a] to-[#2a2a2a]
+              hover:from-[#0a0a0a] hover:to-[#4a4a4a]
+              text-[#D4AF37] text-[3vh] font-semibold
+              py-[1vh] px-[4vh] rounded-[1.5vh] w-[40vh]
               cursor-pointer
-              shadow-[0_4px_0_#B8860B] hover:shadow-[0_2px_0_#A8760B]
+              shadow-[0_0_0.4vh_#A8760B] hover:shadow-[0_0_2vh_#A8760B]
               transform transition-all duration-200
-              hover:-translate-y-1 active:translate-y-1 active:scale-95
+              hover:-translate-y-[0.05vh] active:translate-y-[0.05vh] active:scale-95
             "
             aria-label="Finalizar Pedido"
           >

@@ -19,7 +19,7 @@ export default function NavBar({ onToggleDrawer, onToggleCart }) {
           className="flex items-center cursor-pointer  h-[100%]"
         >
           <Sidebar className="h-[auto] w-[clamp(5vh,3rem,5vh)]" />
-          <span className="ml-[max(0.2rem,1vw)] text-[clamp(3vh,2rem,3vh)] font-bold">
+          <span className="ml-[max(0.2rem,1vw)] text-sm font-bold md:text-[clamp(3vh,2rem,3vh)] ">
             Índice
           </span>
         </button>
@@ -30,7 +30,7 @@ export default function NavBar({ onToggleDrawer, onToggleCart }) {
         <img
           src="/logo.png"
           alt="Logo do site"
-          className="w-auto inline-block h-[clamp(9vh,5rem,9vh)]"
+          className="w-auto inline-block md:h-[clamp(9vh,5rem,9vh)]"
         />
       </div>
 
@@ -50,7 +50,7 @@ export default function NavBar({ onToggleDrawer, onToggleCart }) {
               <span
                 className="
                   absolute -top-[1vh] -right-[1vh]
-                  bg-[#B8860B] text-white text-[clamp(2vh,1.5rem,2vh)] font-bold
+                  bg-[#D4AF37] text-[#1a1a1a] text-[clamp(2vh,1.5rem,2vh)] font-bold
                   rounded-full h-[auto] w-[clamp(3vh,2rem,3vh)] flex items-center justify-center
                 "
               >

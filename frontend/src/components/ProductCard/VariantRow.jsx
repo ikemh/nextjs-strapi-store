@@ -8,6 +8,13 @@ export default function VariantRow({
   quantity,
   onQuantityChange,
 }) {
+  const handleToggle = () => {
+    if (!checked && quantity === 0) {
+      onQuantityChange(1);
+    }
+    toggle();
+  };
+
   const handleQtyChange = (raw) => {
     // só dígitos, até 3 chars
     const digits = String(raw).replace(/\D/g, "").slice(0, 3);
@@ -15,9 +22,9 @@ export default function VariantRow({
     const clean = digits.replace(/^0+/, "") || "0";
     const num = Math.min(999, parseInt(clean, 10));
     onQuantityChange(num);
-    // auto-toggle checkbox
+    // apenas ativa o checkbox se quantidade > 0
     if (num > 0 && !checked) toggle();
-    if (num === 0 && checked) toggle();
+    if (num === 0 && checked) toggle(); // Se quantidade = 0 e checkbox marcado, desmarca
   };
 
   const decrement = () => handleQtyChange(quantity - 1);
@@ -29,40 +36,43 @@ export default function VariantRow({
   const fontSize = len === 1 ? "1rem" : len === 2 ? "0.9rem" : "0.8rem";
 
   return (
-    <tr className="odd:bg-transparent even:bg-[#272727]">
+    <tr className="odd:bg-transparent even:bg-[#1f1f1f]">
       {/* Checkbox */}
-      <td className="w-[10%] pt-2 pb-0 border-t border-[#2A2A2A] text-center">
+      <td className="w-[10%] pt-2 pb-0 border-t border-[#00000040] text-center cursor-pointer">
         <input
           type="checkbox"
           checked={checked}
-          onChange={toggle}
-          className="h-6 w-6 accent-yellow-400 bg-[#1A1A1A] border border-[#2A2A2A] rounded"
+          onChange={handleToggle}
+          className="h-6 w-6 accent-[#D4AF37] bg-[#1A1A1A] border border-[#00000040] rounded"
         />
       </td>
 
       {/* Material */}
-      <td className="w-[45%] px-2 py-0 border-t border-[#2A2A2A] text-left font-bold">
+      <td
+        className="w-[45%] px-2 py-0 border-t border-[#00000040] text-left text-[#DADADA] font-bold cursor-pointer"
+        onClick={handleToggle}
+      >
         {variant.material}
       </td>
 
       {/* Preço */}
-      <td className="w-[20%] px-2 py-0 border-t border-[#2A2A2A] text-left text-[#D0D0D0]">
+      <td className="w-[20%] px-2 py-0 border-t border-[#00000040] text-left text-[#EAEAEA]">
         R$ {variant.price.toFixed(2)}
       </td>
 
       {/* Quantidade */}
-      <td className="w-[25%] px-2 py-0 border-t border-[#2A2A2A] text-center">
-        <div className="inline-flex items-center border border-[#2A2A2A] bg-[#1A1A1A] rounded">
+      <td className="w-[25%] px-2 py-0 border-t border-[#00000040] text-center">
+        <div className="inline-flex items-center border border-[#00000040] bg-[#1A1A1A] rounded">
           <button
             type="button"
             onClick={decrement}
             disabled={quantity <= 0}
             className="
               h-6 w-6 flex items-center justify-center
-              text-white font-bold
-              border-r border-[#2A2A2A]
-              disabled:opacity-50 disabled:hover:bg-[#1A1A1A]
-              hover:bg-[#272727]
+              text-white font-bold rounded-none
+              border-r border-[#2A2A2A] cursor-pointer
+              disabled:opacity-10 disabled:hover:bg-[#1A1A1A] disabled:pointer-events-none
+              hover:bg-[#3a3a3a] hover:rounded
             "
           >
             –
@@ -77,7 +87,7 @@ export default function VariantRow({
             maxLength={3}
             style={{ fontSize }}
             className={
-              `w-8 h-6 bg-transparent text-center font-mono p-0 focus:outline-none focus:ring-2 focus:ring-yellow-400 ` +
+              `w-8 h-6 bg-transparent text-center p-0 focus:outline-none focus:ring-2 focus:ring-yellow-400 ` +
               (quantity > 0 ? "text-[#DADADA]" : "text-[gray]/30")
             }
           />
@@ -87,11 +97,11 @@ export default function VariantRow({
             onClick={increment}
             disabled={quantity >= 999}
             className="
-              h-6 w-6 flex items-center justify-center
-              text-white font-bold
+              h-6 w-6 flex items-center justify-center cursor-pointer
+              text-white font-bold rounded-none
               border-l border-[#2A2A2A]
               disabled:opacity-50 disabled:cursor-not-allowed
-              hover:bg-[#272727]
+              hover:bg-[#272727] hover:rounded
             "
           >
             +

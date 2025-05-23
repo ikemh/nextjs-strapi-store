@@ -38,9 +38,9 @@ export default function CartDrawer({ isOpen, onClose }) {
         className={`
           fixed top-[8vh] right-0
           h-[100%] w-65 min-w-[40vh] max-w-[10rem]
-          bg-[#1F1F1F]/70 backdrop-blur-lg
+          bg-[#1A1A1A]/70 backdrop-blur-lg
           border-l border-white/10
-          origin-right transform transition-transform duration-300 md:top-[10vh] min-w-[40vh]
+          origin-right transform transition-transform duration-350 md:top-[10vh] min-w-[40vh]
           ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}
       >
@@ -52,14 +52,13 @@ export default function CartDrawer({ isOpen, onClose }) {
         >
           ×
         </button>
-
         {/* Conteúdo rolável com classe específica */}
         <SimpleBar
           style={{ maxHeight: "100%" }}
-          className="mt-[6vh]  pl-[0.5vh] cart-scrollbar"
+          className="mt-[6vh] pl-[0.5vh] pb-[40vh] cart-scrollbar"
         >
           {items.length === 0 ? (
-            <p className="pl-[3vh] pt-[3vh] text-[3.5vh] text-[#B3B3B3]">
+            <p className="pl-[3vh] pt-[3vh] text-[3.5vh] text-[#dadada]">
               Carrinho vazio.
             </p>
           ) : (

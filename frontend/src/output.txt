@@ -1,0 +1,1792 @@
+=== ./app/checkout/page.jsx ===
+// src/app/checkout/page.jsx
+
+"use client";
+import React, { useState } from "react";
+import { useCart } from "@/context/CartContext";
+import { useRouter } from "next/navigation";
+import CheckoutLayout from "@/components/CheckoutLayout/CheckoutLayout";
+
+export default function CheckoutPage() {
+  const { items, clearCart } = useCart();
+  const router = useRouter();
+
+  const [customer, setCustomer] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Funções para atualizar os valores dos estados
+  const handleCustomerChange = (value) => setCustomer(value);
+  const handleEmailChange = (value) => setEmail(value);
+  const handlePhoneChange = (value) => setPhone(value);
+
+  // Cálculo do total
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const handleSubmit = async (orderData) => {
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/submitOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+      const result = await res.json();
+      alert(result.message);
+      clearCart(); // Limpa o carrinho após sucesso
+      router.push("/success"); // Redireciona para página de sucesso
+    } catch (error) {
+      alert("Erro ao enviar pedido.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <CheckoutLayout
+      items={items}
+      total={total}
+      customer={customer}
+      email={email}
+      phone={phone}
+      loading={loading}
+      onCustomerChange={handleCustomerChange}
+      onEmailChange={handleEmailChange}
+      onPhoneChange={handlePhoneChange}
+      onSubmit={handleSubmit} // Passando a função de submit para o CheckoutLayout
+    />
+  );
+}
+
+=== ./app/success/page.jsx ===
+export default function SuccessPage() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center text-white bg-[#202020]">
+      <h1 className="text-3xl mb-4">Pedido enviado com sucesso!</h1>
+      <p>Em breve entraremos em contato via WhatsApp.</p>
+    </div>
+  );
+}
+
+=== ./components/ProductsSection.jsx ===
+"use client";
+import React from "react";
+import useProducts from "@/hooks/useProducts";
+import ProductCard from "./ProductCard/ProductCard";
+import { ArrowBigUpDash } from "lucide-react";
+
+export default function ProductsSection({ selectedCategory }) {
+  const { products, lastRef, isValidating, isReachingEnd, error } =
+    useProducts(selectedCategory);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <section className="bg-[#252525] bg-opacity-90 backdrop-blur-sm rounded-xl p-2 sm:p-6 shadow-lg">
+      <div className="grid grid-cols-1 [@media_(min-width:857px)]:grid-cols-2 gap-6">
+        {products.map((product, idx) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            observeRef={idx === products.length - 1 ? lastRef : null}
+          />
+        ))}
+      </div>
+
+      {isValidating && (
+        <p className="text-center text-gray-500 mt-20 h-[50vh] text-6xl select-none">
+          ⟳
+        </p>
+      )}
+
+      {isReachingEnd && !isValidating && (
+        <button
+          onClick={scrollToTop}
+          aria-label="Voltar ao topo"
+          className="flex items-center cursor-pointer h-[100%] justify-center mt-8 mx-auto border rounded-lg p-2 text-gray-500 select-none"
+        >
+          <span className="text-base font-bold text-lg mr-1">
+            Voltar ao topo
+          </span>
+          <ArrowBigUpDash className="h-6 w-6" />
+        </button>
+      )}
+
+      {error && (
+        <p className="text-red-400 text-center mt-20 h-[50vh] text-2xl select-none cursor-pointer">
+          Oops, algo deu errado.
+        </p>
+      )}
+    </section>
+  );
+}
+
+=== ./components/CategoriesNav.jsx ===
+"use client";
+import React from "react";
+
+export default function CategoriesNav({
+  categories,
+  selectedCategory,
+  onSelectCategory,
+}) {
+  return (
+    <nav className="hidden md:block fixed top-1/3 right-6 bg-[#1A1A1A] bg-opacity-80 p-4 rounded-lg shadow-lg z-50">
+      <ul className="space-y-2">
+        {categories.map((cat) => (
+          <li key={cat}>
+            <button
+              onClick={() => onSelectCategory(cat)}
+              className={`text-sm ${
+                cat === selectedCategory
+                  ? "text-white font-bold"
+                  : "text-[#B3B3B3] hover:text-white"
+              }`}
+            >
+              {cat}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+=== ./components/NavBar.jsx ===
+// src/components/NavBar.jsx
+"use client";
+import React from "react";
+import { Sidebar, ShoppingCart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+
+export default function NavBar({ onToggleDrawer, onToggleCart }) {
+  const { items } = useCart();
+  // soma todas as quantidades
+  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  return (
+    <header className="fixed grid min-h-[5vw] grid-cols-3 items-center justify-items-center top-0 left-0 right-0 bg-[#1A1A1A]/70 backdrop-blur-lg border-b border-white/10 px-[2vw] z-50 select-none">
+      {/* Índice */}
+      <div className="col-span-1 h-[100%]  justify-self-start">
+        <button
+          onClick={onToggleDrawer}
+          aria-label="Abrir menu"
+          className="flex items-center cursor-pointer  h-[100%]"
+        >
+          <Sidebar className="h-[auto] w-[clamp(5vh,3rem,5vh)]" />
+          <span className="ml-[max(0.2rem,1vw)] text-sm font-bold md:text-[clamp(3vh,2rem,3vh)] ">
+            Índice
+          </span>
+        </button>
+      </div>
+
+      {/* Logo */}
+      <div className="col-span-1 text-center justify-self-center ">
+        <img
+          src="/logo.png"
+          alt="Logo do site"
+          className="w-auto inline-block md:h-[clamp(9vh,5rem,9vh)]"
+        />
+      </div>
+
+      {/* Carrinho */}
+      <div className="col-span-1 flex justify-self-end h-[100%] max-h-[3rem]">
+        <button
+          onClick={onToggleCart}
+          aria-label="Ver carrinho"
+          className="relative flex items-center cursor-pointer h-[100%] pl-[4rem] py-6"
+        >
+          <span className="hidden md:inline mr-[1vw] text-[clamp(3vh,2rem,3vh)] font-bold">
+            Carrinho
+          </span>
+          <div className="relative">
+            <ShoppingCart className="h-[auto] w-[clamp(5vh,3rem,5vh)] text-white" />
+            {totalQuantity > 0 && (
+              <span
+                className="
+                  absolute -top-[1vh] -right-[1vh]
+                  bg-[#D4AF37] text-[#1a1a1a] text-[clamp(2vh,1.5rem,2vh)] font-bold
+                  rounded-full h-[auto] w-[clamp(3vh,2rem,3vh)] flex items-center justify-center
+                "
+              >
+                {totalQuantity}
+              </span>
+            )}
+          </div>
+        </button>
+      </div>
+    </header>
+  );
+}
+
+=== ./components/SideDrawer.jsx ===
+// SideDrawer.jsx
+"use client";
+import React from "react";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
+
+export default function SideDrawer({
+  isOpen,
+  onClose,
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+}) {
+  return (
+    <div
+      className={`z-40 fixed inset-0 ${isOpen ? "" : "pointer-events-none"}`}
+      onClick={onClose}
+    >
+      <aside
+        onClick={(e) => e.stopPropagation()}
+        className={`
+          fixed top-[8vh] left-0
+          h-[100%] w-30 min-w-[25vh] max-w-[10rem] 
+          bg-[#1A1A1A]/70 backdrop-blur-lg
+          border-r border-white/10
+          origin-left transform transition-transform duration-350 md:top-[10vh] min-w-[30vh]
+          ${isOpen ? "scale-x-100" : "scale-x-0"}
+        `}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Fechar menu"
+          className="cursor-pointer absolute top-[1vh] right-[1vh] text-white text-[4vh] focus:outline-none"
+        >
+          ×
+        </button>
+
+        <SimpleBar
+          style={{ maxHeight: "100%" }}
+          className="mt-[6vh] pl-[1vh] pr-[3vh] pb-[20vh] scroll-smooth font-roboto"
+        >
+          <nav className="space-y-[0.5vh] ">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  onClose();
+                }}
+                className={`
+                  w-full h-[6vh] text-left py-[1vh] pl-[1vh] text-[2.5vh]
+                  cursor-pointer
+                  border-b-[0.1vh] border-[#60606050] last:border-none
+                  transition-transform duration-200
+                  ${
+                    cat === selectedCategory
+                      ? "bg-[#D4AF37]  font-bold text-[#1a1a1a]"
+                      : "text-[#bbbbbb] hover:text-white hover:translate-x-2"
+                  }
+                `}
+              >
+                {cat}
+              </button>
+            ))}
+          </nav>
+        </SimpleBar>
+      </aside>
+    </div>
+  );
+}
+
+=== ./components/FullHoverZoom.jsx ===
+"use client";
+import React, { useState, useRef } from "react";
+import Image from "next/image";
+
+export default function FullHoverZoom({ src, alt, zoom = 2 }) {
+  const [zoomed, setZoomed] = useState(false);
+  const [origin, setOrigin] = useState({ x: 50, y: 50 });
+  const containerRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setOrigin({ x, y });
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full aspect-[1000/400] overflow-hidden cursor-zoom-in rounded-lg"
+      onMouseEnter={() => setZoomed(true)}
+      onMouseMove={(e) => zoomed && handleMouseMove(e)}
+      onMouseLeave={() => setZoomed(false)}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover rounded-lg"
+        style={{
+          transform: zoomed ? `scale(${zoom})` : "scale(1)",
+          transformOrigin: `${origin.x}% ${origin.y}%`,
+          transition: "transform 1s ease",
+        }}
+      />
+    </div>
+  );
+}
+
+=== ./components/ProductCard/ProductCard.jsx ===
+// src/components/ProductCard/ProductCard.jsx
+"use client";
+
+import React, { useState } from "react";
+import ImageZoom from "./ImageZoom";
+import VariantsTable from "./VariantsTable";
+import AddToCartButton from "./AddToCartButton";
+import { useCart } from "@/context/CartContext";
+
+export default function ProductCard({ product, observeRef }) {
+  const [selectedVariants, setSelectedVariants] = useState([]);
+  const [quantities, setQuantities] = useState(() =>
+    product.variants.reduce((acc, v) => ({ ...acc, [v.sku]: 0 }), {})
+  );
+  const { addItem } = useCart();
+
+  const toggleVariant = (sku) =>
+    setSelectedVariants((prev) =>
+      prev.includes(sku) ? prev.filter((s) => s !== sku) : [...prev, sku]
+    );
+
+  const changeQuantity = (sku, val) =>
+    setQuantities((prev) => ({ ...prev, [sku]: val }));
+
+  const handleAddToCart = () => {
+    selectedVariants.forEach((sku) => {
+      const qty = quantities[sku];
+      if (qty <= 0) return;
+      const variant = product.variants.find((v) => v.sku === sku);
+      addItem({
+        id: product.id,
+        sku,
+        title: product.title,
+        price: variant.price,
+        quantity: qty,
+        image: product.imageUrl,
+        material: variant.material,
+      });
+    });
+
+    setSelectedVariants([]);
+  };
+  const isDisabled =
+    selectedVariants.filter((sku) => quantities[sku] > 0).length === 0;
+
+  return (
+    <div
+      ref={observeRef}
+      className="
+        select-none bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl shadow-lg
+        w-full max-w-full sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl
+        mx-auto p-3 sm:p-6 flex flex-col gap-2 sm:gap-3
+      "
+    >
+      {product.imageUrl && (
+        <ImageZoom src={product.imageUrl} alt={product.title} zoom={2} />
+      )}
+
+      <h2 className="text-base sm:text-xl font-semibold text-white text-center whitespace-nowrap">
+        {product.title}
+      </h2>
+
+      <VariantsTable
+        variants={product.variants}
+        selectedVariants={selectedVariants}
+        toggleVariant={toggleVariant}
+        quantities={quantities}
+        changeQuantity={changeQuantity}
+      />
+
+      <AddToCartButton onClick={handleAddToCart} disabled={isDisabled} />
+    </div>
+  );
+}
+
+=== ./components/ProductCard/ImageZoom.jsx ===
+"use client";
+import React from "react";
+import { PhotoProvider, PhotoView } from "react-photo-view";
+import "react-photo-view/dist/react-photo-view.css";
+import FullHoverZoom from "../FullHoverZoom";
+import ZoomToolbar from "./ZoomToolbar";
+
+export default function ImageZoom({ src, alt, zoom }) {
+  return (
+    <PhotoProvider
+      maskOpacity={0.3}
+      maskClassName="bg-black bg-opacity-30 backdrop-blur-sm"
+      toolbarRender={ZoomToolbar}
+    >
+      <PhotoView src={src} key={src}>
+        <div className="cursor-zoom-in">
+          <FullHoverZoom src={src} alt={alt} zoom={zoom} />
+        </div>
+      </PhotoView>
+    </PhotoProvider>
+  );
+}
+
+=== ./components/ProductCard/ZoomToolbar.jsx ===
+import React from "react";
+
+export default function ZoomToolbar({ scale, onScale, onClose }) {
+  return (
+    <div
+      className="
+      fixed bottom-8
+      left-1/2 transform -translate-x-1/2
+      flex space-x-2 md:space-x-4 z-50
+    "
+    >
+      <button
+        onClick={() => onScale(scale - 0.2)}
+        className="
+          w-12 h-12
+          bg-[#000000] hover:bg-[#303030]
+          text-white text-base text-lg
+          rounded-full shadow-md
+        "
+      >
+        −
+      </button>
+      <button
+        onClick={() => onScale(scale + 0.2)}
+        className="
+          w-12 h-12
+          bg-[#000000] hover:bg-[#303030]
+          text-white text-base text-lg
+          rounded-full shadow-md
+        "
+      >
+        +
+      </button>
+      <button
+        onClick={onClose}
+        className="
+          w-12 h-12
+          bg-red-400 hover:bg-red-500
+          text-white text-base text-lg
+          rounded-full shadow-md
+        "
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+=== ./components/ProductCard/VariantsTable.jsx ===
+import React from "react";
+import VariantRow from "./VariantRow";
+
+export default function VariantsTable({
+  variants,
+  selectedVariants,
+  toggleVariant,
+  quantities,
+  changeQuantity,
+}) {
+  return (
+    <div className="overflow-hidden rounded-lg border border-[#00000040]">
+      <table
+        className="
+          w-full
+          text-[#B3B3B3]
+          table-auto
+          border-separate border-spacing-0
+        "
+      >
+        <thead className="bg-[#2A2A2A]">
+          <tr>
+            <th className="w-[5%] px-2 py-0 text-center text-md font-bold" />
+            <th className="w-[40%] px-2 py-0 text-left text-md font-bold">
+              Material
+            </th>
+            <th className="w-[25%] px-2 py-0 text-left text-md font-bold">
+              Preço
+            </th>
+            <th className="w-[20%] px-2 py-0 text-center text-md font-bold">
+              Qtde.
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {variants.map((v, i) => (
+            <VariantRow
+              key={v.sku}
+              variant={v}
+              checked={selectedVariants.includes(v.sku)}
+              toggle={() => toggleVariant(v.sku)}
+              quantity={quantities[v.sku]}
+              onQuantityChange={(val) => changeQuantity(v.sku, val)}
+              // adiciona classes especiais no último row para garantir os cantos
+              className={`
+                ${i % 2 === 0 ? "bg-[#1E1E1E]" : ""}
+                ${i === variants.length - 1 ? "last:rounded-bl-lg last:rounded-br-lg" : ""}
+              `}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+=== ./components/ProductCard/VariantRow.jsx ===
+// src/components/ProductCard/VariantRow.jsx
+import React from "react";
+
+export default function VariantRow({
+  variant,
+  checked,
+  toggle,
+  quantity,
+  onQuantityChange,
+}) {
+  const handleToggle = () => {
+    if (!checked && quantity === 0) {
+      onQuantityChange(1);
+    }
+    toggle();
+  };
+
+  const handleQtyChange = (raw) => {
+    // só dígitos, até 3 chars
+    const digits = String(raw).replace(/\D/g, "").slice(0, 3);
+    // remove zeros à esquerda, mas deixa "0" se tudo for zero
+    const clean = digits.replace(/^0+/, "") || "0";
+    const num = Math.min(999, parseInt(clean, 10));
+    onQuantityChange(num);
+    // apenas ativa o checkbox se quantidade > 0
+    if (num > 0 && !checked) toggle();
+    if (num === 0 && checked) toggle(); // Se quantidade = 0 e checkbox marcado, desmarca
+  };
+
+  const decrement = () => handleQtyChange(quantity - 1);
+  const increment = () => handleQtyChange(quantity + 1);
+  const handleInput = (e) => handleQtyChange(e.target.value);
+
+  // ajusta font-size conforme dígitos
+  const len = String(quantity).length;
+  const fontSize = len === 1 ? "1rem" : len === 2 ? "0.9rem" : "0.8rem";
+
+  return (
+    <tr className="odd:bg-transparent even:bg-[#1f1f1f]">
+      {/* Checkbox */}
+      <td className="w-[10%] pt-2 pb-0 border-t border-[#00000040] text-center cursor-pointer">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={handleToggle}
+          className="h-6 w-6 accent-[#D4AF37] bg-[#1A1A1A] border border-[#00000040] rounded"
+        />
+      </td>
+
+      {/* Material */}
+      <td
+        className="w-[45%] px-2 py-0 border-t border-[#00000040] text-left text-[#DADADA] font-bold cursor-pointer"
+        onClick={handleToggle}
+      >
+        {variant.material}
+      </td>
+
+      {/* Preço */}
+      <td className="w-[20%] px-2 py-0 border-t border-[#00000040] text-left text-[#EAEAEA]">
+        R$ {variant.price.toFixed(2)}
+      </td>
+
+      {/* Quantidade */}
+      <td className="w-[25%] px-2 py-0 border-t border-[#00000040] text-center">
+        <div className="inline-flex items-center border border-[#00000040] bg-[#1A1A1A] rounded">
+          <button
+            type="button"
+            onClick={decrement}
+            disabled={quantity <= 0}
+            className="
+              h-6 w-6 flex items-center justify-center
+              text-white font-bold rounded-none
+              border-r border-[#2A2A2A] cursor-pointer
+              disabled:opacity-10 disabled:hover:bg-[#1A1A1A] disabled:pointer-events-none
+              hover:bg-[#3a3a3a] hover:rounded
+            "
+          >
+            –
+          </button>
+
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="\d*"
+            value={quantity}
+            onChange={handleInput}
+            maxLength={3}
+            style={{ fontSize }}
+            className={
+              `w-8 h-6 bg-transparent text-center p-0 focus:outline-none focus:ring-2 focus:ring-yellow-400 ` +
+              (quantity > 0 ? "text-[#DADADA]" : "text-[gray]/30")
+            }
+          />
+
+          <button
+            type="button"
+            onClick={increment}
+            disabled={quantity >= 999}
+            className="
+              h-6 w-6 flex items-center justify-center cursor-pointer
+              text-white font-bold rounded-none
+              border-l border-[#2A2A2A]
+              disabled:opacity-50 disabled:cursor-not-allowed
+              hover:bg-[#272727] hover:rounded
+            "
+          >
+            +
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+=== ./components/ProductCard/AddToCartButton.jsx ===
+// src/components/AddToCartButton.jsx
+"use client";
+
+import React, { useState } from "react";
+import { ShoppingCart } from "lucide-react";
+import CartChangeToast from "../CartChangeToast";
+
+export default function AddToCartButton({ onClick, disabled }) {
+  const [toast, setToast] = useState(null);
+
+  const handleClick = () => {
+    if (disabled) {
+      setToast({ message: "Selecione algum produto!", type: "alert" });
+      return;
+    }
+    if (onClick) onClick();
+    setToast({ message: "Produto adicionado ao carrinho!", type: "success" });
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        className={`
+          mt-auto py-2 sm:py-3 px-3 sm:px-6
+          bg-gradient-to-r from-[#D4AF37] to-[#A8760B]
+          hover:from-[#CFAF37] hover:to-[#B8860B]
+          text-[#1a1a1a] font-semibold rounded-xl shadow-md
+          transition flex items-center justify-center space-x-2
+          text-base sm:text-lg font-bold
+          ${disabled ? "cursor-default" : "cursor-pointer"}
+        `}
+      >
+        <ShoppingCart className="h-6 w-6" />
+        <span>Adicionar ao carrinho</span>
+      </button>
+
+      {toast && (
+        <CartChangeToast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </>
+  );
+}
+
+=== ./components/CategoryCarousel/CategoryTitle.jsx ===
+"use client";
+import React, { useEffect, useRef } from "react";
+import { Stardos_Stencil } from "next/font/google";
+import { Anton } from "next/font/google";
+
+const anton = Anton({ weight: "400", subsets: ["latin"] });
+const stencil = Stardos_Stencil({ subsets: ["latin"], weight: "700" });
+
+export default function CategoryTitle({
+  categories,
+  selectedCategory,
+  onSelectCategory,
+}) {
+  const containerRef = useRef(null);
+  const itemsRef = useRef([]);
+
+  useEffect(() => {
+    const c = containerRef.current;
+    if (!c) return;
+    c.style.scrollBehavior = "smooth";
+    c.style.msOverflowStyle = "none";
+    c.style.scrollbarWidth = "none";
+  }, []);
+
+  useEffect(() => {
+    const c = containerRef.current;
+    const idx = categories.indexOf(selectedCategory);
+    const item = itemsRef.current[idx];
+    if (c && item) {
+      const cr = c.getBoundingClientRect();
+      const ir = item.getBoundingClientRect();
+      const offset = ir.left - cr.left - (cr.width / 2 - ir.width / 2);
+      c.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  }, [selectedCategory, categories]);
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    containerRef.current?.scrollBy({ left: e.deltaY, behavior: "smooth" });
+  };
+
+  const handleKeyDown = (e) => {
+    const idx = categories.indexOf(selectedCategory);
+    if (e.key === "ArrowRight" && idx < categories.length - 1) {
+      onSelectCategory(categories[idx + 1]);
+    } else if (e.key === "ArrowLeft" && idx > 0) {
+      onSelectCategory(categories[idx - 1]);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center bg-[#1a1a1a] border-b  border-[#3A3A3A] pt-12 pb-8 select-none">
+      {/* Título com degradê e contorno */}
+      <h2
+        className={`text-6xl ${anton.className} uppercase mb-6 pt-3 pb-3 text-[#fafafa] tracking-wide text-center`}
+        style={{
+          textShadow: `
+      1px 5px 2px rgba(0,0,0,0.7),
+      -1px 0 1px rgba(255,255,255,0.4),
+      0 0 50px rgba(255,255,255,0.05)
+    `,
+        }}
+      >
+        CATÁLOGO
+        <br />
+        <span className="block text-3xl text-[#D4AF37] font-normal tracking-normal leading-tight mt-1">
+          2025
+        </span>
+      </h2>
+
+      <div
+        ref={containerRef}
+        tabIndex={0}
+        onWheel={handleWheel}
+        onKeyDown={handleKeyDown}
+        className="flex space-x-3 overflow-x-auto w-full px-4"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        {categories.map((cat, i) => {
+          const isActive = cat === selectedCategory;
+          return (
+            <div
+              key={cat}
+              ref={(el) => (itemsRef.current[i] = el)}
+              className={`relative flex-shrink-0 cursor-pointer transition-all duration-300 rounded-md min-w-[12rem] sm:min-w-[14rem] md:min-w-[15rem] ${
+                isActive
+                  ? "scale-100 opacity-90"
+                  : "scale-95 opacity-75 hover:scale-100 hover:opacity-85"
+              }`}
+              onClick={() => onSelectCategory(cat)}
+            >
+              {/* Camada metálica com efeito 3D */}
+              <div
+                className={`absolute inset-0 rounded-xl ${
+                  isActive ? "brightness-110" : ""
+                }`}
+                style={{
+                  backgroundImage: `
+                    linear-gradient(145deg, #d0d0d0, #909090),
+                    repeating-linear-gradient(
+                      45deg,
+                      #c0c0c0 0px,
+                      #e0e0e0 2px,
+                      #c0c0c0 4px
+                    )
+                  `,
+                  backgroundBlendMode: "overlay",
+                  backgroundSize: "cover",
+                  boxShadow: `
+                    inset 2px 2px 5px rgba(255,255,255,0.5),
+                    inset -2px -2px 5px rgba(0,0,0,5),
+                    2px 2px 8px rgba(0,0,0,0.5)
+                  `,
+                }}
+              />
+
+              {/* Conteúdo do botão */}
+              <div
+                className={`relative z-10 px-6 py-3 border-3 text-center rounded-xl border transition-all duration-200 ${
+                  isActive
+                    ? "border-[#D4AF37] shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                    : "border-[#ffffff]"
+                } hover:shadow-[0_0_8px_rgba(255,255,255,0.2)]`}
+              >
+                <h2
+                  className={`${stencil.className} text-base sm:text-lg md:text-xl uppercase font-extrabold text-transparent bg-clip-text`}
+                  style={{
+                    backgroundImage: `
+                      repeating-linear-gradient(
+                        135deg,
+                        #a0a0a0 0px,
+                        #d0d0d0 1px,
+                        #a0a0a0 2px
+                      ),
+                      linear-gradient(135deg, rgba(2, 2, 2, 0.5), rgba(0,0,0,0.1))
+                    `,
+                    backgroundBlendMode: "overlay",
+                    backgroundSize: "100% 2px, 200% 200%",
+                  }}
+                >
+                  {cat}
+                </h2>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+=== ./components/NotificationDialog.jsx ===
+// src/components/NotificationDialog.jsx
+"use client";
+
+import React from "react";
+import { createPortal } from "react-dom";
+import { X } from "lucide-react";
+
+export default function NotificationDialog({ notifications, clear }) {
+  if (!notifications.length) return null;
+
+  return createPortal(
+    <div className="fixed bottom-20 w-80 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="max-w-md bg-[#1A1A1A]/70 backdrop-blur-lg text-white rounded-lg border border-white/20 shadow-lg overflow-hidden">
+        {/* Cabeçalho fixo */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-white/20">
+          <span className="text-[1rem] font-semibold">
+            ⚠️ &nbsp;Pedido Mínimo
+          </span>
+          <button onClick={clear} aria-label="Fechar" className="p-1">
+            <X className="cursor-pointer h-6 w-6" />
+          </button>
+        </div>
+
+        {/* Lista completa sempre visível */}
+        <div className="px-4 py-2 space-y-1 text-xs">
+          {notifications.map((n, index) => (
+            <div key={`${n.id}-${index}`} className="flex items-start">
+              <span className="mr-2">•</span>
+              <span className="flex-1">{n.text}</span>
+            </div>
+          ))}
+          <div className="mt-2 text-yellow-300">
+            * Apenas o material conta. Modelo não interfere.
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+=== ./components/FloatingCheckoutButton.jsx ===
+// src/components/FloatingCheckoutButton.jsx
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
+import { useNotifications } from "@/hooks/useNotifications";
+import NotificationDialog from "./NotificationDialog";
+
+export default function FloatingCheckoutButton() {
+  const router = useRouter();
+  const { items } = useCart();
+  const {
+    list: notifications,
+    add: addNotification,
+    clear: clearNotifications,
+  } = useNotifications(7);
+
+  // Visibilidade do botão
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    setVisible(items.length > 0);
+  }, [items.length]);
+
+  // Agrupa quantidade por material (usado na validação)
+  const totalsByMaterial = items.reduce((acc, item) => {
+    acc[item.material] = (acc[item.material] || 0) + item.quantity;
+    return acc;
+  }, {});
+
+  const handleCheckout = () => {
+    clearNotifications();
+
+    const shortages = Object.entries(totalsByMaterial)
+      .filter(([_, qty]) => qty < 5)
+      .map(([material, qty]) => ({ material, missing: 5 - qty }));
+
+    if (shortages.length === 0) {
+      router.push("/checkout");
+    } else {
+      shortages.forEach(({ material, missing }) =>
+        addNotification(
+          <>
+            <div className="text-[0.9rem]">
+              <span className="text-[#dadada]">
+                Falta{missing > 1 ? "m" : ""}
+              </span>{" "}
+              <span className="font-bold">{missing}</span>{" "}
+              <span className="text-[#dadada]">
+                unidade
+                {missing > 1 ? "s" : ""} de
+              </span>{" "}
+              <span className="font-bold">{material}</span>
+            </div>
+          </>
+        )
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      clearNotifications();
+
+      const shortages = Object.entries(totalsByMaterial)
+        .filter(([_, qty]) => qty < 5)
+        .map(([material, qty]) => ({ material, missing: 5 - qty }));
+
+      shortages.forEach(({ material, missing }) =>
+        addNotification(
+          <>
+            <div className="text-[0.9rem]">
+              <span className="text-[#dadada]">
+                Falta{missing > 1 ? "m" : ""}
+              </span>{" "}
+              <span className="font-bold">{missing}</span>{" "}
+              <span className="text-[#dadada]">
+                unidade
+                {missing > 1 ? "s" : ""} de
+              </span>{" "}
+              <span className="font-bold">{material}</span>
+            </div>
+          </>
+        )
+      );
+    }
+  }, [items, clearNotifications, addNotification, notifications.length]);
+
+  return (
+    <>
+      <div
+        className={`
+          fixed bottom-0 left-0 right-0
+          grid grid-cols-12 items-center
+          bg-[#1A1A1A]/70 backdrop-blur-lg
+          h-[9vh]
+          border-t border-white/10
+          px-[3vh] py-[0] z-50
+          transform transition-transform duration-500 ease-out
+          ${visible ? "translate-y-0" : "translate-y-full"}
+        `}
+      >
+        <div className="col-span-12 flex justify-center select-none">
+          <button
+            onClick={handleCheckout}
+            className="
+              bg-gradient-to-r from-[#0a0a0a] to-[#2a2a2a]
+              hover:from-[#0a0a0a] hover:to-[#4a4a4a]
+              text-[#D4AF37] text-[3vh] font-semibold
+              py-[1vh] px-[4vh] rounded-[1.5vh] w-[40vh]
+              cursor-pointer
+              shadow-[0_0_0.4vh_#A8760B] hover:shadow-[0_0_2vh_#A8760B]
+              transform transition-all duration-200
+              hover:-translate-y-[0.05vh] active:translate-y-[0.05vh] active:scale-95
+            "
+            aria-label="Finalizar Pedido"
+          >
+            🔪 Finalizar Pedido!
+          </button>
+        </div>
+      </div>
+
+      <NotificationDialog
+        notifications={notifications}
+        clear={clearNotifications}
+      />
+    </>
+  );
+}
+
+=== ./components/CartDrawer.jsx ===
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
+import { X } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import CartChangeToast from "./CartChangeToast";
+
+export default function CartDrawer({ isOpen, onClose }) {
+  const router = useRouter();
+  const { items, removeItem } = useCart();
+  const [toast, setToast] = useState(null);
+
+  // calcula subtotal
+  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+  const handleRemove = (sku) => {
+    removeItem(sku);
+    setToast({ message: "Produto removido do carrinho!", type: "error" });
+  };
+
+  return (
+    <div
+      className={`z-40 fixed inset-0 ${isOpen ? "" : "pointer-events-none"}`}
+      onClick={onClose}
+    >
+      <style jsx global>{`
+        .cart-scrollbar .simplebar-track.simplebar-vertical {
+          right: auto !important;
+          left: 0 !important;
+        }
+      `}</style>
+
+      <aside
+        onClick={(e) => e.stopPropagation()}
+        className={`
+          fixed top-[8vh] right-0
+          h-[100%] w-65 min-w-[40vh] max-w-[10rem]
+          bg-[#1A1A1A]/70 backdrop-blur-lg
+          border-l border-white/10
+          origin-right transform transition-transform duration-350 md:top-[10vh] min-w-[40vh]
+          ${isOpen ? "translate-x-0" : "translate-x-full"}
+        `}
+      >
+        {/* Botão de fechar */}
+        <button
+          onClick={onClose}
+          aria-label="Fechar carrinho"
+          className="z-50 cursor-pointer absolute top-[1vh] left-[1vh] text-white text-[4vh] focus:outline-none"
+        >
+          ×
+        </button>
+        {/* Conteúdo rolável com classe específica */}
+        <SimpleBar
+          style={{ maxHeight: "100%" }}
+          className="mt-[6vh] pl-[0.5vh] pb-[40vh] cart-scrollbar"
+        >
+          {items.length === 0 ? (
+            <p className="pl-[3vh] pt-[3vh] text-[3.5vh] text-[#dadada]">
+              Carrinho vazio.
+            </p>
+          ) : (
+            <ul>
+              {items.map((i, idx) => (
+                <li
+                  key={i.sku}
+                  className={`
+                    flex items-center justify-between px-[1vh] py-[0.5vh]
+                    border-b border-[#60606070]
+                    ${idx === items.length - 1 ? "border-none" : ""}
+                  `}
+                >
+                  <img
+                    src={i.image}
+                    alt={i.title}
+                    className="h-[5.5vh] w-auto object-contain rounded"
+                  />
+                  <div className="flex-1 ml-[2.1vh]">
+                    <div className="font-semibold text-[2.3vh] text-white">
+                      {i.title}
+                    </div>
+                    <div className="text-[2.1vh] text-[#DADADA]">
+                      {i.material}
+                    </div>
+                    <div className="text-[2vh] text-white mt-[0.5vh]">
+                      x{i.quantity} · R$ {(i.price * i.quantity).toFixed(2)}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleRemove(i.sku)}
+                    aria-label="Remover item"
+                    className="text-red-400 hover:text-red-500/80 p-1 cursor-pointer"
+                  >
+                    <X className="h-[auto] w-[2.5vh]" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </SimpleBar>
+
+        {items.length > 0 && (
+          <div className="fixed pb-[22vh] bottom-0 left-0 w-full p-[2vh] bg-[#1A1A1A]/90 backdrop-blur-md z-60 border-t border-white/20">
+            <div className="flex justify-between items-center text-[3vh] font-semibold text-white">
+              <span>Subtotal:</span>
+              <span>R$ {subtotal.toFixed(2)}</span>
+            </div>
+          </div>
+        )}
+      </aside>
+
+      {toast && (
+        <CartChangeToast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+=== ./components/CartChangeToast.jsx ===
+// src/components/CartChangeToast.jsx
+"use client";
+
+import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
+
+export default function CartChangeToast({
+  message,
+  type = "success",
+  onClose,
+}) {
+  // fecha automaticamente após 2s
+  useEffect(() => {
+    const t = setTimeout(onClose, 2000);
+    return () => clearTimeout(t);
+  }, [onClose]);
+
+  // cores suaves
+  const bgClass =
+    type === "success"
+      ? "bg-black/75 backdrop-blur-lg border-green-400/20 text-green-400/80"
+      : type === "error"
+        ? "bg-black/75 backdrop-blur-lg border-red-400/20 text-red-400/80"
+        : "bg-black/75 backdrop-blur-lg border-yellow-400/20 text-yellow-400/85";
+
+  return createPortal(
+    <div className="fixed top-20 w-80 left-1/2 transform -translate-x-1/2 z-50">
+      <div
+        className={`
+          max-w-md
+          ${bgClass}
+          backdrop-blur-lg
+          rounded-lg
+          border
+          px-4 py-2
+          shadow-lg
+          text-center
+          font-medium
+        `}
+      >
+        {message}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+=== ./components/CheckoutLayout/CheckoutLayout.jsx ===
+// src/components/CheckoutLayout.jsx
+
+"use client";
+import React from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import ProductSummary from "./ProductSummary";
+import CustomerInfoForm from "./CustomerInfoForm";
+
+export default function CheckoutLayout({
+  items,
+  total,
+  customer,
+  email,
+  phone,
+  loading,
+  onCustomerChange,
+  onEmailChange,
+  onPhoneChange,
+  onSubmit,
+}) {
+  return (
+    <div className="min-h-screen bg-[#202020] text-white font-roboto antialiased">
+      {/* Header fixo */}
+      <header className="fixed top-0 left-0 right-0 px-4 py-3 grid grid-cols-12 items-center bg-[rgba(26,26,26,0.7)] backdrop-blur-lg z-30 border-b border-white/20">
+        <div className="col-span-2 flex items-center">
+          <Link
+            href="/"
+            aria-label="Voltar ao catálogo"
+            className="flex items-center"
+          >
+            <ArrowLeft className="h-6 w-6 text-white mr-1" />
+            <span className="text-white text-base font-bold">Catálogo</span>
+          </Link>
+        </div>
+        <div className="col-span-8 text-center">
+          <img
+            src="/logo.png"
+            alt="Logo do site"
+            className="h-14 w-auto inline-block"
+          />
+        </div>
+      </header>
+
+      {/* Conteúdo principal */}
+      <main className="pt-30 pb-10 px-4 max-w-6xl mx-auto space-y-12 backdrop-blur-sm bg-[#252525] bg-opacity-90 min-h-[100vh] md:w-120">
+        <ProductSummary items={items} total={total} />
+
+        <CustomerInfoForm
+          customer={customer}
+          email={email}
+          phone={phone}
+          loading={loading}
+          disableSubmit={items.length === 0}
+          onCustomerChange={onCustomerChange}
+          onEmailChange={onEmailChange}
+          onPhoneChange={onPhoneChange}
+          onSubmit={onSubmit}
+        />
+      </main>
+    </div>
+  );
+}
+
+=== ./components/CheckoutLayout/CustomerInfoForm.jsx ===
+import React, { useState, useRef, useEffect } from "react";
+import { useCart } from "@/context/CartContext";
+import Script from "next/script";
+
+import InputField from "./InputField";
+import AddressSection from "./AddressSection";
+import {
+  initPhoneInput,
+  validatePhoneBR,
+} from "@/components/CheckoutLayout/utils/phoneUtils";
+import { validateEmail } from "@/components/CheckoutLayout/utils/emailUtils";
+import { fetchAddressByCEP } from "@/components/CheckoutLayout/utils/cepUtils";
+
+export default function CustomerInfoForm({
+  customer,
+  email,
+  phone,
+  loading,
+  onCustomerChange,
+  onEmailChange,
+  onPhoneChange,
+  onSubmit,
+}) {
+  const { items } = useCart();
+  const phoneRef = useRef(null);
+
+  const [cep, setCep] = useState("");
+  const [address, setAddress] = useState({
+    street: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+  });
+  const [loadingCep, setLoadingCep] = useState(false);
+  const [number, setNumber] = useState("");
+  const [complement, setComplement] = useState("");
+  const [phoneValid, setPhoneValid] = useState(null);
+  const [cepValid, setCepValid] = useState(null);
+
+  useEffect(() => {
+    const value = phoneRef.current?.value || "";
+    setPhoneValid(validatePhoneBR(value).valid);
+  }, [phone]);
+
+  useEffect(() => {
+    if (!phoneRef.current) return;
+    const cleanup = initPhoneInput(phoneRef, onPhoneChange);
+    return cleanup;
+  }, [onPhoneChange]);
+
+  useEffect(() => {
+    const sanitized = cep.replace(/\D/g, "");
+    if (sanitized.length < 8) {
+      setCepValid(false);
+      return;
+    }
+    setLoadingCep(true);
+    fetchAddressByCEP(sanitized)
+      .then((res) => {
+        setAddress(res);
+        setCepValid(true);
+      })
+      .catch((err) => {
+        alert(err.message);
+        setAddress({ street: "", neighborhood: "", city: "", state: "" });
+        setCepValid(false);
+      })
+      .finally(() => setLoadingCep(false));
+  }, [cep]);
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    const trimmedName = customer.trim();
+    if (trimmedName.length < 2) {
+      alert("Nome deve ter pelo menos 2 letras.");
+      return;
+    }
+    if (number.trim() === "") {
+      alert("Número do endereço não pode ficar em branco.");
+      return;
+    }
+    const emailCheck = validateEmail(email);
+    if (!emailCheck.valid) {
+      alert(emailCheck.reason);
+      return;
+    }
+    const phoneVal = validatePhoneBR(phoneRef.current.value);
+    if (!phoneVal.valid) {
+      alert(phoneVal.reason);
+      return;
+    }
+    const sanitizedCep = cep.replace(/\D/g, "");
+    if (sanitizedCep.length !== 8) {
+      alert("CEP deve conter 8 dígitos.");
+      return;
+    }
+    if (!address.street) {
+      alert("Endereço inválido ou CEP não encontrado.");
+      return;
+    }
+
+    onPhoneChange(phoneVal.e164);
+
+    onSubmit({
+      customer,
+      email,
+      phone: phoneVal.e164,
+      address: {
+        street: address.street,
+        neighborhood: address.neighborhood,
+        city: address.city,
+        state: address.state,
+        number, // <–– aqui
+        complement, // <–– e aqui
+      },
+      cartItems: items,
+    });
+  };
+
+  return (
+    <section className="bg-[#1E1E1E] bg-opacity-90 p-6 rounded-2xl border border-[#2A2A2A] shadow-inner">
+      <Script
+        src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+        strategy="afterInteractive"
+      />
+      <h2 className="uppercase tracking-wide text-2xl mb-4 text-[#DDDDDD]">
+        Informações
+      </h2>
+      <form noValidate onSubmit={handleFormSubmit} className="space-y-6">
+        <InputField
+          label="Nome/Empresa"
+          type="text"
+          name="name"
+          autoComplete="name"
+          value={customer}
+          onChange={(e) => onCustomerChange(e.target.value)}
+          isValid={customer.trim().length >= 2}
+          required
+          minLength={2}
+          placeholder="João da Silva / Empresa XYZ"
+        />
+        <InputField
+          label="E-mail"
+          type="email"
+          name="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
+          isValid={validateEmail(email).valid}
+          required
+          placeholder="joao@gmail.com"
+        />
+
+        <AddressSection
+          cep={cep}
+          setCep={setCep}
+          cepValid={cepValid}
+          loadingCep={loadingCep}
+          address={address}
+          number={number}
+          setNumber={setNumber}
+          complement={complement}
+          setComplement={setComplement}
+        />
+
+        <InputField
+          label="Celular"
+          ref={phoneRef}
+          type="tel"
+          autoComplete="tel"
+          defaultValue={phone}
+          onChange={() => {}}
+          isValid={phoneValid}
+          required
+          placeholder="(00) 00000-0000"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 text-lg font-semibold rounded-xl bg-gradient-to-r from-[#CFAF37] to-[#A8760B] hover:from-[#D4AF37] hover:to-[#B8860B] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+        >
+          {loading
+            ? "Enviando…"
+            : loadingCep
+              ? "Buscando CEP…"
+              : "Finalizar Pedido"}
+        </button>
+      </form>
+    </section>
+  );
+}
+
+=== ./components/CheckoutLayout/ProductSummary.jsx ===
+// src/components/ProductSummary.jsx
+// Exibe lista de itens, totais e botões de remoção
+
+import React from "react";
+import { X } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+
+export default function ProductSummary({ items, total }) {
+  const { removeItem } = useCart();
+
+  return (
+    <section>
+      <h1 className="uppercase tracking-wide text-3xl mb-6 text-[#DDDDDD] text-center">
+        Resumo do Pedido
+      </h1>
+
+      {items.length === 0 ? (
+        <p className="text-base text-[#AAAAAA]">Seu carrinho está vazio.</p>
+      ) : (
+        <ul>
+          {items.map((i, idx) => (
+            <li
+              key={i.sku}
+              className={`flex items-center justify-between p-4 rounded-lg ${
+                idx % 2 === 0 ? "bg-[#1E1E1E]" : "bg-[#2A2A2A]"
+              }`}
+            >
+              <img
+                src={i.image}
+                alt={i.title}
+                className="h-12 w-auto object-contain rounded-md"
+              />
+              <div className="flex-1 ml-4">
+                <div className="font-semibold text-base text-white">
+                  {i.title}
+                </div>
+                <div className="text-sm text-[#B3B3B3]">{i.material}</div>
+              </div>
+              <div className="w-12 text-center text-white font-medium">
+                {i.quantity}
+              </div>
+              <div className="w-24 text-right text-white font-medium">
+                R$ {(i.price * i.quantity).toFixed(2)}
+              </div>
+              <button
+                onClick={() => removeItem(i.sku)}
+                aria-label="Remover item"
+                className="ml-4 text-red-400 hover:text-red-600 p-1"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </li>
+          ))}
+
+          <li className="flex justify-between items-center mt-4 pt-4 border-t border-[rgba(255,255,255,0.3)]">
+            <span className="font-semibold text-lg text-white">Total</span>
+            <span className="font-semibold text-lg text-white">
+              R$ {total.toFixed(2)}
+            </span>
+          </li>
+        </ul>
+      )}
+    </section>
+  );
+}
+
+=== ./components/CheckoutLayout/AddressSection.jsx ===
+import React from "react";
+import InputField from "./InputField";
+
+export default function AddressSection({
+  cep,
+  setCep,
+  cepValid,
+  loadingCep,
+  address,
+  number,
+  setNumber,
+  complement,
+  setComplement,
+}) {
+  return (
+    <>
+      <InputField
+        label="CEP"
+        type="text"
+        name="postal-code"
+        autoComplete="postal-code"
+        value={cep.replace(/(\d{5})(\d{1,3})?/, (_, p1, p2) =>
+          p2 ? `${p1}-${p2}` : p1
+        )}
+        onChange={(e) => setCep(e.target.value.replace(/\D/g, "").slice(0, 8))}
+        isValid={cepValid}
+        required
+        maxLength={9}
+        pattern="[0-9]{5}-[0-9]{3}"
+        title="Digite um CEP no formato 00000-000"
+        placeholder="00000-000"
+      />
+
+      {address.street && (
+        <>
+          <InputField
+            label="Rua"
+            value={address.street}
+            readOnly
+            className="text-[#bbb] font-bold pointer-events-none"
+          />
+          <InputField
+            label="Bairro"
+            value={address.neighborhood}
+            readOnly
+            className="text-[#AAAAAA] font-bold pointer-events-none"
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <InputField
+              label="Cidade"
+              value={address.city}
+              readOnly
+              className="text-[#AAAAAA] font-bold pointer-events-none"
+            />
+            <InputField
+              label="UF"
+              value={address.state}
+              readOnly
+              className="text-[#AAAAAA] font-bold pointer-events-none"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <InputField
+              label="Número"
+              type="text"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              isValid={number.trim().length > 0}
+              required
+              placeholder="99"
+            />
+            <InputField
+              label="Complemento"
+              type="text"
+              value={complement}
+              onChange={(e) => setComplement(e.target.value)}
+              showAsterisk={false}
+              placeholder="Pavilhão Esquina"
+            />
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+=== ./components/CheckoutLayout/InputField.jsx ===
+import React, { useState, forwardRef } from "react";
+
+const InputField = forwardRef(
+  (
+    {
+      label,
+      value,
+      onChange,
+      showAsterisk = true,
+      isValid = null, // true | false | null (sem validação)
+      className = "",
+      ...props
+    },
+    ref
+  ) => {
+    const [touched, setTouched] = useState(false);
+    const [focused, setFocused] = useState(false);
+
+    const handleFocus = () => setFocused(true);
+    const handleBlur = () => {
+      setFocused(false);
+      setTouched(true);
+    };
+
+    const baseClasses =
+      "w-full p-3 rounded-xl focus:ring-2 focus:ring-[#D4AF37] placeholder-gray-400/13";
+    const defaultState = "bg-[#1A1A1A] text-white border border-[#2A2A2A]";
+    const validState =
+      "bg-green-300/5 text-[#bbb] font-bold border border-green-500/20";
+    const invalidState = "bg-red-300/5 border border-red-500/40";
+
+    let stateClasses = defaultState;
+    if (touched && !focused && isValid !== null) {
+      stateClasses = isValid ? validState : invalidState;
+    }
+
+    return (
+      <div>
+        <label
+          className={`block mb-2 text-sm text-[#DADADA] font-bold ${
+            showAsterisk
+              ? "after:content-['*'] after:ml-1 after:text-red-500/30"
+              : "after:content-['(opcional)'] after:ml-1 after:text-[0.75rem] after:text-[#DADADA]/35"
+          }`}
+        >
+          {label}
+        </label>
+        <input
+          ref={ref}
+          value={value}
+          onChange={onChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          className={`${baseClasses} ${stateClasses} ${className}`}
+          {...props}
+        />
+      </div>
+    );
+  }
+);
+
+export default InputField;
+
+=== ./context/CartContext.jsx ===
+// src/context/CartContext.jsx
+"use client";
+import React, { createContext, useReducer, useContext, useEffect } from "react";
+
+const CartContext = createContext();
+
+const initialState = { items: [] };
+
+function cartReducer(state, action) {
+  switch (action.type) {
+    case "INIT":
+      return action.payload;
+    case "ADD_ITEM": {
+      const { sku, quantity, ...rest } = action.payload;
+      const exists = state.items.find((item) => item.sku === sku);
+      if (exists) {
+        return {
+          items: state.items.map((item) =>
+            item.sku === sku
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          ),
+        };
+      }
+      return { items: [...state.items, { sku, quantity, ...rest }] };
+    }
+    case "REMOVE_ITEM":
+      return {
+        items: state.items.filter((item) => item.sku !== action.payload.sku),
+      };
+    case "CLEAR_CART":
+      return { items: [] };
+    default:
+      return state;
+  }
+}
+
+export function CartProvider({ children }) {
+  const [state, dispatch] = useReducer(cartReducer, initialState);
+
+  // inicializa do localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("cart");
+    if (stored) dispatch({ type: "INIT", payload: JSON.parse(stored) });
+  }, []);
+
+  // persiste no localStorage
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(state));
+  }, [state]);
+
+  const addItem = (item) => dispatch({ type: "ADD_ITEM", payload: item });
+  const removeItem = (sku) =>
+    dispatch({ type: "REMOVE_ITEM", payload: { sku } });
+  const clearCart = () => dispatch({ type: "CLEAR_CART" });
+
+  // Calcular o total dos itens
+  const total = state.items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+
+  return (
+    <CartContext.Provider
+      value={{ items: state.items, addItem, removeItem, clearCart, total }} // Total é agora acessível diretamente
+    >
+      {children}
+    </CartContext.Provider>
+  );
+}
+
+export function useCart() {
+  return useContext(CartContext);
+}
+
+=== ./context/NotificationsContext.jsx ===
+// src/context/NotificationsContext.jsx
+"use client";
+
+import React, { createContext, useContext, useState } from "react";
+
+const NotificationsContext = createContext();
+
+export function NotificationsProvider({ children }) {
+  const [notifications, setNotifications] = useState([]);
+
+  const addNotification = (text) =>
+    setNotifications((prev) => [...prev, { id: Date.now(), text }]);
+
+  const clearNotifications = () => setNotifications([]);
+
+  return (
+    <NotificationsContext.Provider
+      value={{ notifications, addNotification, clearNotifications }}
+    >
+      {children}
+    </NotificationsContext.Provider>
+  );
+}
+
+export const useNotifications = () => useContext(NotificationsContext);
+

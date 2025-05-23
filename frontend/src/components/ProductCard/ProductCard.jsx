@@ -40,7 +40,6 @@ export default function ProductCard({ product, observeRef }) {
 
     setSelectedVariants([]);
   };
-
   const isDisabled =
     selectedVariants.filter((sku) => quantities[sku] > 0).length === 0;
 
@@ -48,7 +47,7 @@ export default function ProductCard({ product, observeRef }) {
     <div
       ref={observeRef}
       className="
-        select-none bg-[#1F1F1F] border border-[#3A3A3A] rounded-2xl shadow-lg
+        select-none bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl shadow-lg
         w-full max-w-full sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl
         mx-auto p-3 sm:p-6 flex flex-col gap-2 sm:gap-3
       "

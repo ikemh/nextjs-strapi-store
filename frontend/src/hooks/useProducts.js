@@ -27,11 +27,7 @@ export default function useProducts(selectedCategory) {
         page.data.map((p) => ({
           id: p.id,
           title: p.title,
-          imageUrl: p.image?.url
-            ? `${apiUrl}${p.image.url}`
-            : p.image?.formats?.medium?.url
-              ? `${apiUrl}${p.image.formats.medium.url}`
-              : "",
+          imageUrl: p.image?.url || p.image?.formats?.medium?.url || "",
           variants: p.variants.map((v) => ({
             sku: v.sku,
             material: v.material,

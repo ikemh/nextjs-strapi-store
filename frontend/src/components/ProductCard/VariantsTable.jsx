@@ -9,7 +9,7 @@ export default function VariantsTable({
   changeQuantity,
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-[#3A3A3A]">
+    <div className="overflow-hidden rounded-lg border border-[#00000040]">
       <table
         className="
           w-full

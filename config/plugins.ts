@@ -1,4 +1,5 @@
 export default ({ env }) => ({
+  // Nodemailer
   email: {
     config: {
       provider: "nodemailer",
@@ -18,6 +19,22 @@ export default ({ env }) => ({
       settings: {
         defaultFrom: env("SMTP_FROM", "seu-email@gmail.com"),
         defaultReplyTo: env("SMTP_REPLY_TO", "seu-email@gmail.com"),
+      },
+    },
+  },
+  // Cloudinary
+  upload: {
+    config: {
+      provider: "cloudinary",
+      providerOptions: {
+        cloud_name: env("CLOUDINARY_NAME"),
+        api_key: env("CLOUDINARY_KEY"),
+        api_secret: env("CLOUDINARY_SECRET"),
+      },
+      actionOptions: {
+        upload: {},
+        uploadStream: {},
+        delete: {},
       },
     },
   },

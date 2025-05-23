@@ -49,25 +49,24 @@ export default function CategoryTitle({
   };
 
   return (
-    <div className="flex flex-col items-center bg-gradient-to-t from-[#202020] border-b  border-[#3A3A3A] to-[#1a1a1a] pt-12 pb-8 select-none">
+    <div className="flex flex-col items-center bg-[#1a1a1a] border-b  border-[#3A3A3A] pt-12 select-none">
       {/* Título com degradê e contorno */}
       <h2
-        className={`text-6xl ${anton.className} uppercase mb-6 pt-3 pb-3 text-[#fff] tracking-wide text-center`}
+        className={`text-6xl ${anton.className} uppercase pt-3  text-[#eaeaea] tracking-wide text-center`}
         style={{
           textShadow: `
-      1px 5px 2px rgba(0,0,0,0.7),
-      -1px -1px 1px rgba(255,255,255,0.4),
-      0 0 50px rgba(255,255,255,0.35)
+      1px 5px 2px rgba(0,0,0,0.5),
+      -2px -2px 2px rgba(255,255,255,0.4),
+      0 0 50px  rgba(200,200,200,0.8)
     `,
         }}
       >
         CATÁLOGO
         <br />
-        <span className="block text-3xl text-[#D4AF37] font-normal tracking-normal leading-tight mt-1">
-          2025
-        </span>
       </h2>
-
+      <span className="block mb-12  text-3xl text-[#D4AF37] font-bold ">
+        2025
+      </span>
       <div
         ref={containerRef}
         tabIndex={0}
@@ -94,7 +93,7 @@ export default function CategoryTitle({
             >
               {/* Camada metálica com efeito 3D */}
               <div
-                className={`absolute inset-0 rounded-md ${
+                className={`absolute inset-0 rounded-xl ${
                   isActive ? "brightness-110" : ""
                 }`}
                 style={{
@@ -110,8 +109,8 @@ export default function CategoryTitle({
                   backgroundBlendMode: "overlay",
                   backgroundSize: "cover",
                   boxShadow: `
-                    inset 2px 2px 5px rgba(255,255,255,0.3),
-                    inset -2px -2px 5px rgba(0,0,0,0.4),
+                    inset 2px 2px 5px rgba(255,255,255,0.5),
+                    inset -2px -2px 5px rgba(0,0,0,5),
                     2px 2px 8px rgba(0,0,0,0.5)
                   `,
                 }}
@@ -119,7 +118,7 @@ export default function CategoryTitle({
 
               {/* Conteúdo do botão */}
               <div
-                className={`relative z-10 px-6 py-3 border-3 text-center rounded-md border transition-all duration-200 ${
+                className={`relative z-10 px-6 py-3 border-3 text-center rounded-xl border transition-all duration-200 ${
                   isActive
                     ? "border-[#D4AF37] shadow-[0_0_10px_rgba(255,255,255,0.3)]"
                     : "border-[#ffffff]"
