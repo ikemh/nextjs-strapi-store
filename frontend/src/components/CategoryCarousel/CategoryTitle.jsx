@@ -49,7 +49,7 @@ export default function CategoryTitle({
   };
 
   return (
-    <div className="flex flex-col items-center bg-[#1a1a1a] border-b  border-[#3A3A3A] pt-12 select-none">
+    <div className="flex flex-col items-center bg-[#1a1a1a] border-b pb-10 border-[#3A3A3A] pt-12 select-none">
       {/* Título com degradê e contorno */}
       <h2
         className={`text-6xl ${anton.className} uppercase pt-3  text-[#eaeaea] tracking-wide text-center`}
